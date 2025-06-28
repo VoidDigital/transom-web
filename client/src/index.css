@@ -146,21 +146,31 @@
   background: hsl(215.4, 16.3%, 36.9%);
 }
 
-/* Ensure proper text direction in editor */
-[contenteditable] {
+/* Ensure proper text direction in editor - stronger enforcement */
+[contenteditable],
+[contenteditable] *,
+.prose,
+.prose * {
   direction: ltr !important;
   text-align: left !important;
   unicode-bidi: embed !important;
   writing-mode: horizontal-tb !important;
 }
 
-[contenteditable] * {
+/* Force left-to-right typing for all text input */
+[contenteditable]:focus,
+[contenteditable]:focus * {
   direction: ltr !important;
+  text-align: left !important;
   unicode-bidi: embed !important;
 }
 
-/* Force left-to-right typing for all text input */
-[contenteditable]:focus {
+/* Additional enforcement for any potential RTL text */
+body, html {
+  direction: ltr !important;
+}
+
+div[contenteditable="true"] {
   direction: ltr !important;
   text-align: left !important;
 }

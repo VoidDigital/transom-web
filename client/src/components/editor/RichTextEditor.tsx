@@ -14,11 +14,39 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
   useEffect(() => {
     if (editorRef.current && !isUpdating) {
       editorRef.current.innerHTML = content;
+      // Force text direction after content update
+      editorRef.current.style.direction = 'ltr';
+      editorRef.current.style.textAlign = 'left';
     }
   }, [content, isUpdating]);
 
+  // Add additional text direction enforcement
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (editor) {
+      const enforceDirection = () => {
+        editor.style.direction = 'ltr';
+        editor.style.textAlign = 'left';
+      };
+      
+      editor.addEventListener('input', enforceDirection);
+      editor.addEventListener('keydown', enforceDirection);
+      editor.addEventListener('paste', enforceDirection);
+      
+      return () => {
+        editor.removeEventListener('input', enforceDirection);
+        editor.removeEventListener('keydown', enforceDirection);
+        editor.removeEventListener('paste', enforceDirection);
+      };
+    }
+  }, []);
+
   const handleInput = () => {
     if (editorRef.current) {
+      // Force text direction on every input
+      editorRef.current.style.direction = 'ltr';
+      editorRef.current.style.textAlign = 'left';
+      
       setIsUpdating(true);
       onChange(editorRef.current.innerHTML);
       setTimeout(() => setIsUpdating(false), 0);
@@ -32,6 +60,12 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Force LTR direction on every keystroke
+    if (editorRef.current) {
+      editorRef.current.style.direction = 'ltr';
+      editorRef.current.style.textAlign = 'left';
+    }
+    
     // Handle common shortcuts
     if (e.ctrlKey || e.metaKey) {
       switch (e.key) {
@@ -109,6 +143,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           unicodeBidi: 'embed',
           writingMode: 'horizontal-tb'
         }}
+        dir="ltr"
         suppressContentEditableWarning={true}
         data-placeholder="Start writing your thought..."
       />
