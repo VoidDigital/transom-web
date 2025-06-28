@@ -234,3 +234,13 @@ div[contenteditable="true"] {
   direction: ltr !important;
   unicode-bidi: embed !important;
 }
+
+/* Specific fix for RTL text issue in rich text editor */
+[contenteditable="true"] {
+  text-rendering: optimizeSpeed !important;
+}
+
+[contenteditable="true"]:focus {
+  direction: ltr !important;
+  unicode-bidi: embed !important;
+}
