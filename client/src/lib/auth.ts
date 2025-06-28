@@ -97,7 +97,6 @@ export const getCurrentUser = async (): Promise<User | null> => {
   }
 
   // User document doesn't exist, create it
-  console.log("User document doesn't exist, creating user profile");
   return await createOrUpdateUser(firebaseUser);
 };
 
