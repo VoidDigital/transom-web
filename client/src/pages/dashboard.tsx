@@ -60,50 +60,8 @@ export default function Dashboard() {
     return <Loading message="Loading your workspace..." />;
   }
 
-  // Mobile layout
-  const isMobile = window.innerWidth < 1024;
-  
-  if (isMobile) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <MobileNavigation
-          currentView={currentView}
-          onViewChange={setCurrentView}
-          onCreateNote={handleCreateThought}
-        />
-        
-        <main className="flex-1">
-          {showEditor && selectedNote ? (
-            <NoteEditor
-              note={selectedNote}
-              onBack={handleBackToNotes}
-            />
-          ) : (
-            <div className="h-full">
-              {currentView === 'thoughts' && (
-                <NotesPanel
-                  onSelectNote={handleSelectNote}
-                  onCreateNote={handleCreateThought}
-                />
-              )}
-              {currentView === 'projects' && (
-                <ProjectsPanel onSelectProject={handleSelectProject} />
-              )}
-              {currentView === 'tags' && (
-                <TagsPanel onSelectTag={handleSelectTag} />
-              )}
-              {currentView === 'archive' && (
-                <ArchivePanel onSelectNote={handleSelectNote} />
-              )}
-              {currentView === 'preferences' && (
-                <PreferencesPanel />
-              )}
-            </div>
-          )}
-        </main>
-      </div>
-    );
-  }
+  // Force desktop layout for now to test left sidebar
+  // TODO: Re-enable mobile detection later
 
   // Desktop two-panel layout
   return (

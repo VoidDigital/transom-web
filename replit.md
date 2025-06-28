@@ -123,7 +123,27 @@ This is the responsive web interface for Transom, a note-taking app for writers.
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### June 28, 2025
+- **Navigation Restructure**: Implemented two-panel dashboard layout with left sidebar navigation
+  - Five main sections: Thoughts, Projects (isPiece tags), Tags (regular tags), Archive, Preferences  
+  - Projects show tags with isPiece: true facet for piece-based organization
+  - Archive functionality added with isArchived field for thoughts
+  - Clean desktop-optimized interface with responsive mobile fallback
+
+- **Archive System**: Added complete archive functionality
+  - Schema updated with isArchived boolean field
+  - Separate archive hooks and panels created
+  - Archive/unarchive operations implemented
+  - Main thoughts filtered to exclude archived items
+
+- **Enhanced Data Model**: Updated tag schema to support project classification
+  - Added isPiece boolean facet to distinguish project tags from regular tags
+  - Updated Firebase queries to handle new data structure
+  - Maintained backward compatibility with existing data
+
 ## Changelog
 
 Changelog:
-- June 28, 2025. Initial setup
+- June 28, 2025. Initial setup and two-panel dashboard implementation
