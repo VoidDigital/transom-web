@@ -3,6 +3,8 @@ import { User as FirebaseUser } from "firebase/auth";
 import { User } from "@shared/schema";
 import { 
   signInWithGoogle, 
+  signInWithEmail,
+  signUpWithEmail,
   signOutUser, 
   handleRedirectResult, 
   onAuthStateChange, 
@@ -14,6 +16,8 @@ interface AuthContextType {
   firebaseUser: FirebaseUser | null;
   loading: boolean;
   signIn: () => Promise<void>;
+  signInWithEmailAndPassword: (email: string, password: string) => Promise<void>;
+  signUpWithEmailAndPassword: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -58,6 +62,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const signInWithEmailAndPassword = async (email: string, password: string) => {
+    try {
+      await signInWithEmail(email, password);
+    } catch (error) {
+      console.error("Error signing in with email:", error);
+      throw error;
+    }
+  };
+
+  const signUpWithEmailAndPassword = async (email: string, password: string, name: string) => {
+    try {
+      await signUpWithEmail(email, password, name);
+    } catch (error) {
+      console.error("Error signing up with email:", error);
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
       await signOutUser();
@@ -70,7 +92,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, firebaseUser, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      firebaseUser, 
+      loading, 
+      signIn, 
+      signInWithEmailAndPassword,
+      signUpWithEmailAndPassword,
+      signOut 
+    }}>
       {children}
     </AuthContext.Provider>
   );

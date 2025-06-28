@@ -4,6 +4,8 @@ import {
   GoogleAuthProvider, 
   getRedirectResult,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   User as FirebaseUser
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
@@ -14,6 +16,16 @@ const googleProvider = new GoogleAuthProvider();
 
 export const signInWithGoogle = () => {
   return signInWithRedirect(auth, googleProvider);
+};
+
+export const signInWithEmail = async (email: string, password: string) => {
+  return signInWithEmailAndPassword(auth, email, password);
+};
+
+export const signUpWithEmail = async (email: string, password: string, name: string) => {
+  const result = await createUserWithEmailAndPassword(auth, email, password);
+  await createOrUpdateUser(result.user);
+  return result;
 };
 
 export const signOutUser = () => {

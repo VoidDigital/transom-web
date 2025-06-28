@@ -31,10 +31,14 @@ This is the responsive web interface for Transom, a note-taking app for writers.
 ## Key Components
 
 ### Authentication System
-- Firebase Authentication with Google OAuth
+- Firebase Authentication with dual sign-in options:
+  - Email/password authentication for existing users
+  - Google OAuth for new users or alternative sign-in
 - Custom auth context and hooks for user state management
 - Automatic token refresh and session persistence
 - Protected routes and authentication guards
+- Form validation with proper error handling
+- Account creation with email verification
 
 ### Project Management
 - Hierarchical organization with projects containing notes
