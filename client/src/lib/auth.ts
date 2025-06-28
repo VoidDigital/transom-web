@@ -19,7 +19,15 @@ export const signInWithGoogle = () => {
 };
 
 export const signInWithEmail = async (email: string, password: string) => {
-  return signInWithEmailAndPassword(auth, email, password);
+  console.log("signInWithEmail called with:", email);
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    console.log("Firebase signInWithEmailAndPassword successful:", result.user.uid);
+    return result;
+  } catch (error) {
+    console.error("Firebase signInWithEmailAndPassword failed:", error);
+    throw error;
+  }
 };
 
 export const signUpWithEmail = async (email: string, password: string, name: string) => {

@@ -62,9 +62,13 @@ export default function LoginPage() {
   const handleEmailSignIn = async (data: SignInForm) => {
     try {
       setLoading(true);
+      console.log("Attempting email sign in for:", data.email);
       await signInWithEmailAndPassword(data.email, data.password);
+      console.log("Email sign in successful");
     } catch (error: any) {
       console.error("Email sign in error:", error);
+      console.error("Error code:", error.code);
+      console.error("Error message:", error.message);
       let message = "Unable to sign in. Please check your credentials.";
       if (error.code === "auth/user-not-found") {
         message = "No account found with this email address.";
@@ -72,6 +76,8 @@ export default function LoginPage() {
         message = "Incorrect password.";
       } else if (error.code === "auth/invalid-email") {
         message = "Invalid email address.";
+      } else if (error.code === "auth/invalid-credential") {
+        message = "Invalid email or password.";
       }
       toast({
         title: "Sign in failed",
