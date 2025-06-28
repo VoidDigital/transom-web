@@ -13,7 +13,7 @@ function AppRouter() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <Loading message="Loading WriterNotes..." />;
+    return <Loading message="Loading Transom..." />;
   }
 
   if (!user) {

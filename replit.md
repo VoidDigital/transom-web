@@ -1,8 +1,8 @@
-# WriterNotes - Full-Stack Note-Taking Application
+# Transom Web Interface - Full-Stack Note-Taking Application
 
 ## Overview
 
-WriterNotes is a modern, full-stack note-taking application built with React, Express, and Firebase. The application provides a clean, intuitive interface for creating, organizing, and managing notes across projects with real-time synchronization and authentication.
+This is the responsive web interface for Transom, a note-taking app for writers. Built with React, Express, and Firebase, it provides seamless synchronization with the iOS app, allowing users to access and manage their writing projects, notes, and tags from any device. The web interface maintains feature parity with the mobile app while offering a desktop-optimized experience.
 
 ## System Architecture
 

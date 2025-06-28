@@ -24,7 +24,7 @@ export default function MobileNavigation({
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <PenTool className="w-4 h-4 text-primary-foreground" />
             </div>
-            <h1 className="text-lg font-bold text-slate-900">WriterNotes</h1>
+            <h1 className="text-lg font-bold text-slate-900">Transom</h1>
           </div>
           <Button onClick={onCreateNote} size="sm">
             <PenTool className="w-4 h-4" />

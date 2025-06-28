@@ -26,9 +26,9 @@ export default function LoginPage() {
           <div className="mx-auto w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4">
             <PenTool className="w-6 h-6 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl font-bold text-slate-900">WriterNotes</CardTitle>
+          <CardTitle className="text-2xl font-bold text-slate-900">Transom</CardTitle>
           <CardDescription className="text-slate-600">
-            Your notes, synced across all devices
+            Your writing notes, synced across all devices
           </CardDescription>
         </CardHeader>
         <CardContent>

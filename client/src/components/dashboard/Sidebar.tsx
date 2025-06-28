@@ -51,7 +51,7 @@ export default function Sidebar({ onCreateNote }: SidebarProps) {
             <PenTool className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">WriterNotes</h1>
+            <h1 className="text-xl font-bold text-slate-900">Transom</h1>
             <p className="text-sm text-slate-500">{user.email}</p>
           </div>
         </div>
