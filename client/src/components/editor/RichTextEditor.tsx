@@ -106,7 +106,9 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         style={{ 
           direction: 'ltr', 
           textAlign: 'left',
-          unicodeBidi: 'normal'
+          unicodeBidi: 'embed',
+          writingMode: 'horizontal-tb',
+          textDirection: 'ltr'
         }}
         suppressContentEditableWarning={true}
         data-placeholder="Start writing your thought..."

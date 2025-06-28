@@ -145,3 +145,22 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(215.4, 16.3%, 36.9%);
 }
+
+/* Ensure proper text direction in editor */
+[contenteditable] {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: embed !important;
+  writing-mode: horizontal-tb !important;
+}
+
+[contenteditable] * {
+  direction: ltr !important;
+  unicode-bidi: embed !important;
+}
+
+/* Force left-to-right typing for all text input */
+[contenteditable]:focus {
+  direction: ltr !important;
+  text-align: left !important;
+}
