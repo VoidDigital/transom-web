@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RichTextEditor } from "@/components/editor/RichTextEditor";
+import { SimpleTextEditor } from "@/components/editor/SimpleTextEditor";
 import { Note, UpdateNote } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowLeft, Share, Trash2, Cloud, Plus, X, Folder, Tag } from "lucide-react";
@@ -175,7 +175,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
       {/* Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 p-4 lg:p-6">
-          <RichTextEditor
+          <SimpleTextEditor
             content={content}
             onChange={handleContentChange}
           />
