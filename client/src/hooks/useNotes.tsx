@@ -49,7 +49,7 @@ export const useNotes = (projectId?: string) => {
 
     console.log("🔍 Querying notes with userId:", firebaseUser.uid);
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
       console.log("🔍 Firebase query returned", snapshot.docs.length, "notes");
       
       const notesData = snapshot.docs.map(doc => {
@@ -69,6 +69,26 @@ export const useNotes = (projectId?: string) => {
           updatedAt: data.updatedAt?.toDate() || new Date(),
         } as Note;
       });
+
+      // Check for notes that need text migration (run in background)
+      const migrationPromises = notesData
+        .filter(note => isTextReversed(note.content))
+        .map(async (note) => {
+          console.log("🔧 Auto-migrating reversed text for note:", note.id);
+          try {
+            await migrateNoteContent(note.id, note.content);
+            console.log("✅ Successfully migrated note:", note.id);
+          } catch (error) {
+            console.error("❌ Failed to migrate note:", note.id, error);
+          }
+        });
+      
+      // Run migrations in background without blocking UI
+      if (migrationPromises.length > 0) {
+        Promise.all(migrationPromises).then(() => {
+          console.log("🎉 All text migrations completed");
+        });
+      }
       
       // Store all notes for comprehensive access
       setAllNotes(notesData);

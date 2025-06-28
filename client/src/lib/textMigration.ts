@@ -17,6 +17,8 @@ export function isTextReversed(text: string): boolean {
     /\sfo\s/, // " of " reversed
     /\snA\s/, // " An " reversed
     /\sa\s.*si\s/, // "a ... is" pattern reversed
+    /hguoht/, // "thought" reversed
+    /gnipyt/, // "typing" reversed
   ];
   
   return reversedPatterns.some(pattern => pattern.test(cleanText));
