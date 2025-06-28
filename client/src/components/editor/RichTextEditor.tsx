@@ -13,7 +13,32 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
 
   useEffect(() => {
     if (editorRef.current && !isUpdating) {
-      editorRef.current.innerHTML = content;
+      // Process HTML content from iOS app
+      let processedContent = content;
+      
+      // Extract text content from complex HTML structures like iOS exports
+      if (content.includes('<!DOCTYPE html') || content.includes('<body>')) {
+        // Create temporary DOM element to parse complex HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = content;
+        
+        // Extract text content while preserving basic formatting
+        const bodyContent = tempDiv.querySelector('body') || tempDiv;
+        processedContent = bodyContent.innerHTML || bodyContent.textContent || '';
+        
+        // Clean up extra styling but keep basic formatting
+        processedContent = processedContent
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Remove style tags
+          .replace(/<meta[^>]*>/gi, '') // Remove meta tags
+          .replace(/class="[^"]*"/gi, '') // Remove class attributes
+          .replace(/style="[^"]*"/gi, '') // Remove inline styles
+          .replace(/<span[^>]*>(.*?)<\/span>/gi, '$1') // Unwrap spans
+          .replace(/<p[^>]*>/gi, '<div>') // Convert p to div
+          .replace(/<\/p>/gi, '</div>'); // Convert p to div
+      }
+      
+      editorRef.current.innerHTML = processedContent;
+      
       // Force text direction after content update
       editorRef.current.style.direction = 'ltr';
       editorRef.current.style.textAlign = 'left';
@@ -87,6 +112,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     if (editorRef.current) {
       editorRef.current.style.direction = 'ltr';
       editorRef.current.style.textAlign = 'left';
+      editorRef.current.style.unicodeBidi = 'bidi-override';
     }
     
     // Handle common shortcuts
