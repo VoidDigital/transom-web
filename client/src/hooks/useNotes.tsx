@@ -51,20 +51,20 @@ export const useNotes = (projectId?: string) => {
 
     console.log("🔍 Querying notes with userId:", firebaseUser.uid);
     
-    // Check for the specific note ID from iOS
+    // Check for the specific note ID from iOS after config update
     getDoc(doc(db, "notes", "OTrIhzqCu8Qewl3w921")).then((docSnap) => {
-      console.log("🔍 Specific note OTrIhzqCu8Qewl3w921 exists:", docSnap.exists());
+      console.log("🔍 iOS note OTrIhzqCu8Qewl3w921 found:", docSnap.exists());
       if (docSnap.exists()) {
         const noteData = docSnap.data();
-        console.log("🔍 iOS note data:", {
+        console.log("✅ Connected to correct Firebase project! iOS note data:", {
           userId: noteData.userId,
           content: noteData.content?.substring(0, 50),
           createdAt: noteData.createdAt
         });
       } else {
-        console.log("🔍 Note OTrIhzqCu8Qewl3w921 not found - checking if we need to update Firebase config");
+        console.log("❌ Note still not found - may need to sign in with correct account");
       }
-    }).catch(err => console.log("🔍 Error checking specific note:", err));
+    }).catch(err => console.log("🔍 Firebase connection error:", err));
 
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       console.log("🔍 Firebase query returned", snapshot.docs.length, "notes");
