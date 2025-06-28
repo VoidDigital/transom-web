@@ -30,4 +30,9 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
+// Clear any cached authentication to force fresh login with iOS project
+auth.signOut().catch(() => {
+  // Ignore errors from signing out non-existent users
+});
+
 export default app;

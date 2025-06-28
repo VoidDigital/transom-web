@@ -30,11 +30,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChange(async (firebaseUser) => {
+      console.log("🔍 Auth state change - User:", firebaseUser?.uid, firebaseUser?.email);
       setFirebaseUser(firebaseUser);
       
       if (firebaseUser) {
         try {
           const userData = await getCurrentUser();
+          console.log("🔍 User data retrieved:", userData);
           setUser(userData);
         } catch (error) {
           console.error("Error getting user data:", error);
