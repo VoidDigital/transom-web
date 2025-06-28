@@ -4,10 +4,11 @@ import { useProjects } from "@/hooks/useProjects";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import { Note, UpdateNote } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowLeft, Share, Trash2, Cloud, Plus, X } from "lucide-react";
+import { ArrowLeft, Share, Trash2, Cloud, Plus, X, Folder, Tag } from "lucide-react";
 
 interface NoteEditorProps {
   note: Note | null;
@@ -15,7 +16,7 @@ interface NoteEditorProps {
 }
 
 export default function NoteEditor({ note, onBack }: NoteEditorProps) {
-  const { selectedProject } = useProjects();
+  const { projects, selectedProject } = useProjects();
   const { 
     updateNote, 
     deleteNote, 
@@ -25,16 +26,16 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
     removeTagFromNote 
   } = useNotes(selectedProject?.id);
   
-  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [selectedProjectId, setSelectedProjectId] = useState(selectedProject?.id || "");
   const [newTag, setNewTag] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     if (note) {
-      setTitle(note.title);
       setContent(note.content);
+      setSelectedProjectId(note.projectId);
       setHasUnsavedChanges(false);
     }
   }, [note]);

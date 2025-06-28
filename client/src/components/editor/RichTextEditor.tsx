@@ -1,15 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { 
-  Bold, 
-  Italic, 
-  Underline, 
-  Heading1, 
-  List, 
-  ListOrdered, 
-  Link, 
-  Quote 
-} from "lucide-react";
+import { Bold, Italic, Underline, List } from "lucide-react";
 
 interface RichTextEditorProps {
   content: string;
@@ -60,100 +51,66 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     }
   };
 
-  const insertLink = () => {
-    const url = prompt('Enter URL:');
-    if (url) {
-      execCommand('createLink', url);
-    }
-  };
-
   return (
-    <div className="flex flex-col h-full">
-      {/* Toolbar */}
-      <div className="px-4 lg:px-6 py-3 border-b border-slate-200 flex items-center space-x-1 overflow-x-auto">
+    <div className="border rounded-lg overflow-hidden">
+      {/* Toolbar - Only iOS app features: Bold, Italic, Underline, Bulleted Lists */}
+      <div className="border-b bg-gray-50 p-2 flex gap-1">
         <Button
-          variant="ghost"
           size="sm"
+          variant="ghost"
           onClick={() => execCommand('bold')}
           className="h-8 w-8 p-0"
+          title="Bold"
         >
-          <Bold className="w-4 h-4" />
+          <Bold className="h-4 w-4" />
         </Button>
         <Button
-          variant="ghost"
           size="sm"
+          variant="ghost"
           onClick={() => execCommand('italic')}
           className="h-8 w-8 p-0"
+          title="Italic"
         >
-          <Italic className="w-4 h-4" />
+          <Italic className="h-4 w-4" />
         </Button>
         <Button
-          variant="ghost"
           size="sm"
+          variant="ghost"
           onClick={() => execCommand('underline')}
           className="h-8 w-8 p-0"
+          title="Underline"
         >
-          <Underline className="w-4 h-4" />
+          <Underline className="h-4 w-4" />
         </Button>
         
-        <div className="w-px h-6 bg-slate-300 mx-2" />
+        <div className="w-px h-6 bg-gray-300 mx-1 self-center" />
         
         <Button
-          variant="ghost"
           size="sm"
-          onClick={() => execCommand('formatBlock', 'h1')}
-          className="h-8 w-8 p-0"
-        >
-          <Heading1 className="w-4 h-4" />
-        </Button>
-        <Button
           variant="ghost"
-          size="sm"
           onClick={() => execCommand('insertUnorderedList')}
           className="h-8 w-8 p-0"
+          title="Bulleted List"
         >
-          <List className="w-4 h-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => execCommand('insertOrderedList')}
-          className="h-8 w-8 p-0"
-        >
-          <ListOrdered className="w-4 h-4" />
-        </Button>
-        
-        <div className="w-px h-6 bg-slate-300 mx-2" />
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={insertLink}
-          className="h-8 w-8 p-0"
-        >
-          <Link className="w-4 h-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => execCommand('formatBlock', 'blockquote')}
-          className="h-8 w-8 p-0"
-        >
-          <Quote className="w-4 h-4" />
+          <List className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Editor */}
-      <div className="flex-1 p-4 lg:p-6">
-        <div
-          ref={editorRef}
-          contentEditable
-          onInput={handleInput}
-          onKeyDown={handleKeyDown}
-          className="w-full h-full min-h-96 prose prose-slate max-w-none focus:outline-none text-slate-900 leading-relaxed"
-          style={{ whiteSpace: 'pre-wrap' }}
-        />
-      </div>
+      <div
+        ref={editorRef}
+        contentEditable
+        onInput={handleInput}
+        onKeyDown={handleKeyDown}
+        className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none"
+        style={{ 
+          direction: 'ltr', 
+          textAlign: 'left',
+          unicodeBidi: 'normal'
+        }}
+        suppressContentEditableWarning={true}
+        data-placeholder="Start writing your thought..."
+      />
     </div>
   );
 }
