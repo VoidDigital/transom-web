@@ -24,19 +24,41 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
   useEffect(() => {
     const editor = editorRef.current;
     if (editor) {
-      const enforceDirection = () => {
+      const enforceDirection = (e: Event) => {
+        // Force styles immediately
         editor.style.direction = 'ltr';
         editor.style.textAlign = 'left';
+        editor.style.unicodeBidi = 'bidi-override';
+        
+        // Force cursor position and selection to maintain LTR
+        setTimeout(() => {
+          const selection = window.getSelection();
+          if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            // Ensure selection maintains LTR direction
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+        }, 0);
+      };
+      
+      const handleBeforeInput = (e: Event) => {
+        enforceDirection(e);
       };
       
       editor.addEventListener('input', enforceDirection);
       editor.addEventListener('keydown', enforceDirection);
       editor.addEventListener('paste', enforceDirection);
+      editor.addEventListener('beforeinput', handleBeforeInput);
+      editor.addEventListener('focus', enforceDirection);
       
       return () => {
         editor.removeEventListener('input', enforceDirection);
         editor.removeEventListener('keydown', enforceDirection);
         editor.removeEventListener('paste', enforceDirection);
+        editor.removeEventListener('beforeinput', handleBeforeInput);
+        editor.removeEventListener('focus', enforceDirection);
       };
     }
   }, []);
@@ -46,6 +68,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       // Force text direction on every input
       editorRef.current.style.direction = 'ltr';
       editorRef.current.style.textAlign = 'left';
+      editorRef.current.style.unicodeBidi = 'bidi-override';
       
       setIsUpdating(true);
       onChange(editorRef.current.innerHTML);
@@ -131,22 +154,29 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       </div>
 
       {/* Editor */}
-      <div
-        ref={editorRef}
-        contentEditable
-        onInput={handleInput}
-        onKeyDown={handleKeyDown}
-        className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none"
-        style={{ 
-          direction: 'ltr', 
-          textAlign: 'left',
-          unicodeBidi: 'embed',
-          writingMode: 'horizontal-tb'
-        }}
-        dir="ltr"
-        suppressContentEditableWarning={true}
-        data-placeholder="Start writing your thought..."
-      />
+      <div 
+        className="ltr-wrapper" 
+        dir="ltr" 
+        style={{ direction: 'ltr', unicodeBidi: 'bidi-override' }}
+      >
+        <div
+          ref={editorRef}
+          contentEditable
+          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none ltr-forced"
+          style={{ 
+            direction: 'ltr', 
+            textAlign: 'left',
+            unicodeBidi: 'bidi-override',
+            writingMode: 'horizontal-tb'
+          }}
+          dir="ltr"
+          lang="en"
+          suppressContentEditableWarning={true}
+          data-placeholder="Start writing your thought..."
+        />
+      </div>
     </div>
   );
 }

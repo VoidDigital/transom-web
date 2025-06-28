@@ -174,3 +174,44 @@ div[contenteditable="true"] {
   direction: ltr !important;
   text-align: left !important;
 }
+
+/* Specific class for forcing LTR in editor */
+.ltr-forced {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: bidi-override !important;
+  writing-mode: horizontal-tb !important;
+}
+
+.ltr-forced * {
+  direction: ltr !important;
+  unicode-bidi: bidi-override !important;
+}
+
+/* Force LTR for all text nodes and elements */
+.ltr-forced span,
+.ltr-forced div,
+.ltr-forced p,
+.ltr-forced br {
+  direction: ltr !important;
+  unicode-bidi: bidi-override !important;
+}
+
+/* Wrapper with strongest LTR enforcement */
+.ltr-wrapper {
+  direction: ltr !important;
+  unicode-bidi: bidi-override !important;
+  writing-mode: horizontal-tb !important;
+}
+
+.ltr-wrapper * {
+  direction: ltr !important;
+  unicode-bidi: bidi-override !important;
+}
+
+/* Override any RTL detection */
+[contenteditable] {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: bidi-override !important;
+}
