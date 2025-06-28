@@ -12,16 +12,15 @@ interface NotesPanelProps {
 }
 
 export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelProps) {
-  const { selectedProject } = useProjects();
   const { 
-    notes, 
+    allNotes: notes, 
     selectedNote, 
     tags, 
     activeTagFilters, 
     getTagsForNote, 
     addTagFilter, 
     removeTagFilter 
-  } = useNotes(selectedProject?.id);
+  } = useNotes(); // Remove project filtering to show all thoughts
 
   const getPreviewText = (content: string) => {
     // Strip HTML tags and get first 150 characters
@@ -29,20 +28,13 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
     return text.length > 150 ? text.substring(0, 150) + '...' : text;
   };
 
+  // Filter out archived thoughts to show only active ones
+  const activeNotes = notes.filter(note => !note.isArchived);
+
   const availableTags = tags.filter(tag => 
     !activeTagFilters.includes(tag.id) &&
-    notes.some(note => note.tags.includes(tag.id))
+    activeNotes.some(note => note.tags.includes(tag.id))
   );
-
-  if (!selectedProject) {
-    return (
-      <div className="w-full lg:w-96 border-r border-slate-200 flex flex-col items-center justify-center p-8">
-        <p className="text-slate-500 text-center">
-          Select a project to view notes
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full lg:w-96 border-r border-slate-200 flex flex-col">
@@ -51,10 +43,10 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">
-              {selectedProject.name}
+              All Thoughts
             </h2>
             <p className="text-sm text-slate-500">
-              {notes.length} notes
+              {activeNotes.length} thoughts
             </p>
           </div>
           <div className="flex items-center space-x-2">
@@ -106,15 +98,15 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
 
       {/* Notes List */}
       <div className="flex-1 overflow-y-auto">
-        {notes.length === 0 ? (
+        {activeNotes.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-slate-500 mb-4">No notes in this project yet</p>
+            <p className="text-slate-500 mb-4">No thoughts yet</p>
             <Button onClick={onCreateNote} size="sm">
-              Create your first note
+              Create your first thought
             </Button>
           </div>
         ) : (
-          notes.map((note) => (
+          activeNotes.map((note) => (
             <button
               key={note.id}
               onClick={() => onSelectNote(note)}
@@ -126,7 +118,7 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
             >
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-sm font-semibold text-slate-900 line-clamp-2">
-                  {note.title || "Untitled"}
+                  {getPreviewText(note.content).slice(0, 50) || "Empty thought"}
                 </h3>
                 <span className="text-xs text-slate-400 ml-2 whitespace-nowrap">
                   {formatDistanceToNow(note.updatedAt, { addSuffix: true })}
