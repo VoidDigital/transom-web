@@ -10,15 +10,6 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// Debug Firebase configuration
-console.log('Firebase Config:', {
-  apiKey: firebaseConfig.apiKey ? '***configured***' : 'missing',
-  authDomain: firebaseConfig.authDomain,
-  projectId: firebaseConfig.projectId,
-  storageBucket: firebaseConfig.storageBucket,
-  appId: firebaseConfig.appId ? '***configured***' : 'missing',
-});
-
 // Initialize Firebase app only if it hasn't been initialized already
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
