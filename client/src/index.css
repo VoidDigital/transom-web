@@ -215,3 +215,22 @@ div[contenteditable="true"] {
   text-align: left !important;
   unicode-bidi: bidi-override !important;
 }
+
+/* Force LTR for all text input */
+[contenteditable="true"] {
+  direction: ltr !important;
+  unicode-bidi: embed !important;
+  text-align: left !important;
+}
+
+[contenteditable="true"]:before {
+  content: "\202D";
+  position: absolute;
+  left: -9999px;
+}
+
+/* Prevent any RTL character detection */
+[contenteditable="true"] * {
+  direction: ltr !important;
+  unicode-bidi: embed !important;
+}

@@ -45,44 +45,77 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     }
   }, [content, isUpdating]);
 
-  // Add additional text direction enforcement
+  // Add text direction enforcement with character replacement
   useEffect(() => {
     const editor = editorRef.current;
     if (editor) {
-      const enforceDirection = (e: Event) => {
-        // Force styles immediately
+      const enforceDirection = () => {
         editor.style.direction = 'ltr';
         editor.style.textAlign = 'left';
         editor.style.unicodeBidi = 'bidi-override';
-        
-        // Force cursor position and selection to maintain LTR
-        setTimeout(() => {
+      };
+      
+      const handleBeforeInput = (e: InputEvent) => {
+        // Intercept text input and force LTR
+        if (e.inputType === 'insertText' && e.data) {
+          e.preventDefault();
+          
+          // Get current selection
           const selection = window.getSelection();
           if (selection && selection.rangeCount > 0) {
             const range = selection.getRangeAt(0);
-            // Ensure selection maintains LTR direction
-            range.collapse(false);
+            
+            // Insert LTR mark before each character to force direction
+            const ltrText = '\u202D' + e.data;
+            
+            // Insert the text with LTR override
+            range.deleteContents();
+            const textNode = document.createTextNode(ltrText);
+            range.insertNode(textNode);
+            
+            // Move cursor after inserted text
+            range.setStartAfter(textNode);
+            range.setEndAfter(textNode);
             selection.removeAllRanges();
             selection.addRange(range);
+            
+            // Trigger change
+            handleInput();
           }
-        }, 0);
+        }
       };
       
-      const handleBeforeInput = (e: Event) => {
-        enforceDirection(e);
+      const handlePaste = (e: ClipboardEvent) => {
+        e.preventDefault();
+        const paste = e.clipboardData?.getData('text');
+        if (paste) {
+          // Force LTR for pasted content
+          const selection = window.getSelection();
+          if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            const textNode = document.createTextNode('\u202D' + paste);
+            range.insertNode(textNode);
+            range.setStartAfter(textNode);
+            range.setEndAfter(textNode);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            handleInput();
+          }
+        }
       };
       
+      editor.addEventListener('beforeinput', handleBeforeInput);
+      editor.addEventListener('paste', handlePaste);
       editor.addEventListener('input', enforceDirection);
       editor.addEventListener('keydown', enforceDirection);
-      editor.addEventListener('paste', enforceDirection);
-      editor.addEventListener('beforeinput', handleBeforeInput);
       editor.addEventListener('focus', enforceDirection);
       
       return () => {
+        editor.removeEventListener('beforeinput', handleBeforeInput);
+        editor.removeEventListener('paste', handlePaste);
         editor.removeEventListener('input', enforceDirection);
         editor.removeEventListener('keydown', enforceDirection);
-        editor.removeEventListener('paste', enforceDirection);
-        editor.removeEventListener('beforeinput', handleBeforeInput);
         editor.removeEventListener('focus', enforceDirection);
       };
     }
@@ -183,24 +216,22 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       <div 
         className="ltr-wrapper" 
         dir="ltr" 
-        style={{ direction: 'ltr', unicodeBidi: 'bidi-override' }}
       >
-        <div
-          ref={editorRef}
-          contentEditable
-          onInput={handleInput}
-          onKeyDown={handleKeyDown}
-          className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none ltr-forced"
+        <textarea
+          ref={editorRef as any}
+          value={content.replace(/<[^>]*>/g, '')} // Strip HTML for textarea
+          onChange={(e) => onChange(`<div>${e.target.value}</div>`)} // Wrap in div for HTML
+          onKeyDown={handleKeyDown as any}
+          className="min-h-[200px] p-4 focus:outline-none resize-none w-full border-0 bg-transparent"
           style={{ 
             direction: 'ltr', 
             textAlign: 'left',
-            unicodeBidi: 'bidi-override',
+            unicodeBidi: 'normal',
             writingMode: 'horizontal-tb'
           }}
           dir="ltr"
           lang="en"
-          suppressContentEditableWarning={true}
-          data-placeholder="Start writing your thought..."
+          placeholder="Start writing your thought..."
         />
       </div>
     </div>
