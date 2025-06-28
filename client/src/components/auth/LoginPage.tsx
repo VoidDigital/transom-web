@@ -8,13 +8,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Mail } from "lucide-react";
+import { Mail, Eye, EyeOff } from "lucide-react";
 import { OmegaLogo } from "@/components/ui/omega-logo";
 import { useToast } from "@/hooks/use-toast";
 
 const signInSchema = z.object({
   email: z.string().email("Please use a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters").max(24, "Password must be 24 characters or less"),
+  password: z.string().min(1, "Password is required"),
 });
 
 const signUpSchema = z.object({
@@ -34,16 +34,19 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("signin");
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const signInForm = useForm<SignInForm>({
     resolver: zodResolver(signInSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: { email: "", password: "" },
   });
 
   const signUpForm = useForm<SignUpForm>({
     resolver: zodResolver(signUpSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: { email: "", password: "", confirmPassword: "" },
   });
 
@@ -157,7 +160,25 @@ export default function LoginPage() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input {...field} type="password" placeholder="Enter your password" />
+                          <div className="relative">
+                            <Input 
+                              {...field} 
+                              type={showSignInPassword ? "text" : "password"} 
+                              placeholder="Enter your password"
+                              className="pr-10"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowSignInPassword(!showSignInPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            >
+                              {showSignInPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -217,7 +238,25 @@ export default function LoginPage() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input {...field} type="password" placeholder="Create a password" />
+                          <div className="relative">
+                            <Input 
+                              {...field} 
+                              type={showSignUpPassword ? "text" : "password"} 
+                              placeholder="Create a password"
+                              className="pr-10"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowSignUpPassword(!showSignUpPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            >
+                              {showSignUpPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -230,7 +269,25 @@ export default function LoginPage() {
                       <FormItem>
                         <FormLabel>Confirm Password</FormLabel>
                         <FormControl>
-                          <Input {...field} type="password" placeholder="Confirm your password" />
+                          <div className="relative">
+                            <Input 
+                              {...field} 
+                              type={showConfirmPassword ? "text" : "password"} 
+                              placeholder="Confirm your password"
+                              className="pr-10"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            >
+                              {showConfirmPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
