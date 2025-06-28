@@ -15,6 +15,7 @@ import {
 import { db } from "@/lib/firebase";
 import { useAuth } from "./useAuth";
 import { Note, InsertNote, UpdateNote, Tag } from "@shared/schema";
+import { isTextReversed, migrateNoteContent } from "@/lib/textMigration";
 
 export const useNotes = (projectId?: string) => {
   const { user, firebaseUser } = useAuth();
@@ -34,6 +35,11 @@ export const useNotes = (projectId?: string) => {
       return;
     }
 
+    // Debug logging to check user data
+    console.log("🔍 Firebase User UID:", firebaseUser.uid);
+    console.log("🔍 User Email:", firebaseUser.email);
+    console.log("🔍 Custom User Data:", user);
+
     // Use Firebase Auth UID to match iOS app data structure
     const q = query(
       collection(db, "notes"),
@@ -41,9 +47,21 @@ export const useNotes = (projectId?: string) => {
       orderBy("updatedAt", "desc")
     );
 
+    console.log("🔍 Querying notes with userId:", firebaseUser.uid);
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
+      console.log("🔍 Firebase query returned", snapshot.docs.length, "notes");
+      
       const notesData = snapshot.docs.map(doc => {
         const data = doc.data();
+        console.log("🔍 Note data:", {
+          id: doc.id,
+          userId: data.userId,
+          content: data.content?.substring(0, 50) + "...",
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt
+        });
+        
         return {
           id: doc.id,
           ...data,
@@ -55,8 +73,13 @@ export const useNotes = (projectId?: string) => {
       // Store all notes for comprehensive access
       setAllNotes(notesData);
       
+      console.log("🔍 Total notes before filtering:", notesData.length);
+      console.log("🔍 Archived notes:", notesData.filter(note => note.isArchived).length);
+      
       // Filter client-side to avoid composite index requirements
       let filteredNotes = notesData.filter(note => !note.isArchived);
+      
+      console.log("🔍 Notes after archive filter:", filteredNotes.length);
       
       if (projectId) {
         filteredNotes = filteredNotes.filter(note => note.projectId === projectId);
