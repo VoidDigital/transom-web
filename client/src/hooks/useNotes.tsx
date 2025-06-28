@@ -19,6 +19,7 @@ import { Note, InsertNote, UpdateNote, Tag } from "@shared/schema";
 export const useNotes = (projectId?: string) => {
   const { user } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
+  const [allNotes, setAllNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -32,23 +33,12 @@ export const useNotes = (projectId?: string) => {
       return;
     }
 
-    let q;
-    if (projectId) {
-      q = query(
-        collection(db, "notes"),
-        where("userId", "==", user.id),
-        where("projectId", "==", projectId),
-        where("isArchived", "==", false),
-        orderBy("updatedAt", "desc")
-      );
-    } else {
-      q = query(
-        collection(db, "notes"),
-        where("userId", "==", user.id),
-        where("isArchived", "==", false),
-        orderBy("updatedAt", "desc")
-      );
-    }
+    // Use simple query to avoid composite index requirement
+    const q = query(
+      collection(db, "notes"),
+      where("userId", "==", user.id),
+      orderBy("updatedAt", "desc")
+    );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const notesData = snapshot.docs.map(doc => {
@@ -61,7 +51,17 @@ export const useNotes = (projectId?: string) => {
         } as Note;
       });
       
-      setNotes(notesData);
+      // Store all notes for comprehensive access
+      setAllNotes(notesData);
+      
+      // Filter client-side to avoid composite index requirements
+      let filteredNotes = notesData.filter(note => !note.isArchived);
+      
+      if (projectId) {
+        filteredNotes = filteredNotes.filter(note => note.projectId === projectId);
+      }
+      
+      setNotes(filteredNotes);
       setLoading(false);
     });
 
@@ -222,7 +222,7 @@ export const useNotes = (projectId?: string) => {
 
   return {
     notes: filteredNotes,
-    allNotes: notes,
+    allNotes,
     selectedNote,
     setSelectedNote,
     tags,

@@ -25,43 +25,36 @@ export const useArchivedNotes = (projectId?: string) => {
       return;
     }
 
-    // For now, let's fetch without the isArchived filter to avoid index issues
-    // We'll filter on the client side temporarily
-    let q;
-    if (projectId) {
-      q = query(
-        collection(db, "notes"),
-        where("userId", "==", user.id),
-        where("projectId", "==", projectId),
-        orderBy("updatedAt", "desc")
-      );
-    } else {
-      q = query(
-        collection(db, "notes"),
-        where("userId", "==", user.id),
-        orderBy("updatedAt", "desc")
-      );
-    }
+    // Use simple query to avoid composite index requirement
+    const q = query(
+      collection(db, "notes"),
+      where("userId", "==", user.id),
+      orderBy("updatedAt", "desc")
+    );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const notesData: Note[] = [];
-      snapshot.forEach((doc) => {
+      const allNotesData = snapshot.docs.map(doc => {
         const data = doc.data();
-        // Client-side filter for archived notes
-        if (data.isArchived === true) {
-          notesData.push({
-            id: doc.id,
-            content: data.content,
-            projectId: data.projectId,
-            userId: data.userId,
-            tags: data.tags || [],
-            isArchived: data.isArchived ?? false,
-            createdAt: data.createdAt?.toDate() || new Date(),
-            updatedAt: data.updatedAt?.toDate() || new Date(),
-          });
-        }
+        return {
+          id: doc.id,
+          content: data.content,
+          projectId: data.projectId,
+          userId: data.userId,
+          tags: data.tags || [],
+          isArchived: data.isArchived ?? false,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        } as Note;
       });
-      setArchivedNotes(notesData);
+
+      // Filter for archived notes and optionally by project
+      let filteredNotes = allNotesData.filter(note => note.isArchived === true);
+      
+      if (projectId) {
+        filteredNotes = filteredNotes.filter(note => note.projectId === projectId);
+      }
+      
+      setArchivedNotes(filteredNotes);
       setLoading(false);
     });
 
