@@ -38,12 +38,14 @@ export const useNotes = (projectId?: string) => {
         collection(db, "notes"),
         where("userId", "==", user.id),
         where("projectId", "==", projectId),
+        where("isArchived", "==", false),
         orderBy("updatedAt", "desc")
       );
     } else {
       q = query(
         collection(db, "notes"),
         where("userId", "==", user.id),
+        where("isArchived", "==", false),
         orderBy("updatedAt", "desc")
       );
     }
@@ -122,6 +124,7 @@ export const useNotes = (projectId?: string) => {
       id: docRef.id,
       ...noteData,
       userId: user.id,
+      isArchived: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -209,6 +212,14 @@ export const useNotes = (projectId?: string) => {
     setActiveTagFilters([]);
   };
 
+  const archiveNote = async (noteId: string) => {
+    await updateNote(noteId, { isArchived: true });
+  };
+
+  const unarchiveNote = async (noteId: string) => {
+    await updateNote(noteId, { isArchived: false });
+  };
+
   return {
     notes: filteredNotes,
     allNotes: notes,
@@ -229,5 +240,7 @@ export const useNotes = (projectId?: string) => {
     addTagFilter,
     removeTagFilter,
     clearTagFilters,
+    archiveNote,
+    unarchiveNote,
   };
 };

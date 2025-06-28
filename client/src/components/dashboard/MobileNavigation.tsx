@@ -1,10 +1,10 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { PenTool, StickyNote, Folder, Search, User } from "lucide-react";
+import { PenTool, StickyNote, Folder, Search, User, Archive } from "lucide-react";
 
 interface MobileNavigationProps {
-  currentView: 'notes' | 'projects' | 'search' | 'profile';
-  onViewChange: (view: 'notes' | 'projects' | 'search' | 'profile') => void;
+  currentView: 'notes' | 'projects' | 'search' | 'archive' | 'profile';
+  onViewChange: (view: 'notes' | 'projects' | 'search' | 'archive' | 'profile') => void;
   onCreateNote: () => void;
 }
 

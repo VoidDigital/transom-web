@@ -58,7 +58,7 @@ export const insertTagSchema = tagSchema.omit({
 export type Tag = z.infer<typeof tagSchema>;
 export type InsertTag = z.infer<typeof insertTagSchema>;
 
-// Note schema
+// Note schema (also called "Thoughts")
 export const noteSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -66,12 +66,14 @@ export const noteSchema = z.object({
   projectId: z.string(),
   userId: z.string(),
   tags: z.array(z.string()), // Array of tag IDs
+  isArchived: z.boolean().default(false),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
 export const insertNoteSchema = noteSchema.omit({
   id: true,
+  isArchived: true,
   createdAt: true,
   updatedAt: true,
 });
