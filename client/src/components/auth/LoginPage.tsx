@@ -37,6 +37,7 @@ export default function LoginPage() {
 
   const signInForm = useForm<SignInForm>({
     resolver: zodResolver(signInSchema),
+    mode: "onChange",
     defaultValues: { email: "", password: "" },
   });
 
@@ -91,7 +92,7 @@ export default function LoginPage() {
   const handleEmailSignUp = async (data: SignUpForm) => {
     try {
       setLoading(true);
-      await signUpWithEmailAndPassword(data.email, data.password, data.name);
+      await signUpWithEmailAndPassword(data.email, data.password, data.email.split('@')[0]);
       toast({
         title: "Account created",
         description: "Welcome to Transom! Your account has been created successfully.",
@@ -191,19 +192,7 @@ export default function LoginPage() {
             <TabsContent value="signup" className="space-y-4">
               <Form {...signUpForm}>
                 <form onSubmit={signUpForm.handleSubmit(handleEmailSignUp)} className="space-y-4">
-                  <FormField
-                    control={signUpForm.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Enter your full name" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+
                   <FormField
                     control={signUpForm.control}
                     name="email"
