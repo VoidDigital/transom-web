@@ -51,7 +51,6 @@ export const useArchivedNotes = (projectId?: string) => {
         if (data.isArchived === true) {
           notesData.push({
             id: doc.id,
-            title: data.title,
             content: data.content,
             projectId: data.projectId,
             userId: data.userId,

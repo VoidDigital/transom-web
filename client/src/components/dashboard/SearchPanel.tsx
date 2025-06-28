@@ -32,7 +32,6 @@ export default function SearchPanel({ onSelectNote }: SearchPanelProps) {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(note => 
-        note.title.toLowerCase().includes(query) || 
         note.content.toLowerCase().includes(query)
       );
     }
@@ -45,7 +44,7 @@ export default function SearchPanel({ onSelectNote }: SearchPanelProps) {
     // Tag filter
     if (selectedTags.length > 0) {
       filtered = filtered.filter(note => 
-        selectedTags.every(tagId => note.tagIds?.includes(tagId))
+        selectedTags.every(tagId => note.tags?.includes(tagId))
       );
     }
 

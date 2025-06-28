@@ -100,7 +100,6 @@ export const useNotes = (projectId?: string) => {
   const filteredNotes = notes.filter(note => {
     // Search filter
     const matchesSearch = searchQuery === "" || 
-      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       note.content.toLowerCase().includes(searchQuery.toLowerCase());
 
     // Tag filter

@@ -20,8 +20,7 @@ export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
   const filteredNotes = archivedNotes.filter(note => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
-    return note.title.toLowerCase().includes(query) || 
-           note.content.toLowerCase().includes(query);
+    return note.content.toLowerCase().includes(query);
   });
 
   const getProjectName = (projectId: string) => {
@@ -112,7 +111,7 @@ export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-1 flex-1 mr-2">
-                    {note.title || 'Untitled'}
+                    {note.content.slice(0, 50) || 'Empty thought'}
                   </h3>
                   
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
