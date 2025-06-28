@@ -8,19 +8,21 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { PenTool, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
+import { OmegaLogo } from "@/components/ui/omega-logo";
 import { useToast } from "@/hooks/use-toast";
 
 const signInSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email("Please use a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters").max(24, "Password must be 24 characters or less"),
 });
 
-const signUpSchema = signInSchema.extend({
-  name: z.string().min(2, "Name must be at least 2 characters"),
+const signUpSchema = z.object({
+  email: z.string().email("Please use a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters").max(24, "Password must be 24 characters or less"),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
+  message: "Whoops, those passwords don't match",
   path: ["confirmPassword"],
 });
 
@@ -40,7 +42,8 @@ export default function LoginPage() {
 
   const signUpForm = useForm<SignUpForm>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+    mode: "onChange",
+    defaultValues: { email: "", password: "", confirmPassword: "" },
   });
 
   const handleGoogleSignIn = async () => {
@@ -116,18 +119,18 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4">
-            <PenTool className="w-6 h-6 text-primary-foreground" />
+            <OmegaLogo className="w-6 h-6 text-primary-foreground" />
           </div>
           <CardTitle className="text-2xl font-bold text-slate-900">Transom</CardTitle>
           <CardDescription className="text-slate-600">
-            Your writing notes, synced across all devices
+            Transom is the free note-taking app made by writers, for writers.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="signin">Log In</TabsTrigger>
+              <TabsTrigger value="signup">Create Account</TabsTrigger>
             </TabsList>
             
             <TabsContent value="signin" className="space-y-4">
