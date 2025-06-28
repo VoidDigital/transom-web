@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useProjects } from "@/hooks/useProjects";
 import { useNotes } from "@/hooks/useNotes";
-import Sidebar from "@/components/dashboard/Sidebar";
+import LeftSidebar from "@/components/dashboard/LeftSidebar";
 import NotesPanel from "@/components/dashboard/NotesPanel";
 import NoteEditor from "@/components/dashboard/NoteEditor";
 import ProjectsPanel from "@/components/dashboard/ProjectsPanel";
@@ -15,20 +14,19 @@ import { Note, InsertNote } from "@shared/schema";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { selectedProject } = useProjects();
-  const { createNote, selectedNote, setSelectedNote } = useNotes(selectedProject?.id);
+  const { createNote, selectedNote, setSelectedNote } = useNotes();
   
-  const [mobileView, setMobileView] = useState<'notes' | 'projects' | 'search' | 'profile'>('notes');
+  const [currentView, setCurrentView] = useState<'thoughts' | 'projects' | 'tags' | 'archive' | 'preferences'>('thoughts');
   const [showEditor, setShowEditor] = useState(false);
 
-  const handleCreateNote = async () => {
-    if (!selectedProject || !user) return;
+  const handleCreateThought = async () => {
+    if (!user) return;
 
     try {
       const newNoteData: InsertNote = {
-        title: "Untitled Note",
+        title: "Untitled Thought",
         content: "",
-        projectId: selectedProject.id,
+        projectId: "",
         tags: [],
       };
 
@@ -36,7 +34,7 @@ export default function Dashboard() {
       setSelectedNote(newNote);
       setShowEditor(true);
     } catch (error) {
-      console.error("Error creating note:", error);
+      console.error("Error creating thought:", error);
     }
   };
 
@@ -50,6 +48,14 @@ export default function Dashboard() {
     setSelectedNote(null);
   };
 
+  const handleSelectProject = (projectId: string) => {
+    console.log('Selected project:', projectId);
+  };
+
+  const handleSelectTag = (tagId: string) => {
+    console.log('Selected tag:', tagId);
+  };
+
   if (!user) {
     return <Loading message="Loading your workspace..." />;
   }
@@ -61,9 +67,9 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen flex flex-col">
         <MobileNavigation
-          currentView={mobileView}
-          onViewChange={setMobileView}
-          onCreateNote={handleCreateNote}
+          currentView={currentView}
+          onViewChange={setCurrentView}
+          onCreateNote={handleCreateThought}
         />
         
         <main className="flex-1">
@@ -74,44 +80,23 @@ export default function Dashboard() {
             />
           ) : (
             <div className="h-full">
-              {mobileView === 'notes' && (
+              {currentView === 'thoughts' && (
                 <NotesPanel
                   onSelectNote={handleSelectNote}
-                  onCreateNote={handleCreateNote}
+                  onCreateNote={handleCreateThought}
                 />
               )}
-              {mobileView === 'projects' && (
-                <div className="p-4">
-                  {/* Project management for mobile */}
-                  <h2 className="text-lg font-semibold mb-4">Projects</h2>
-                  {/* Add project list here */}
-                </div>
+              {currentView === 'projects' && (
+                <ProjectsPanel onSelectProject={handleSelectProject} />
               )}
-              {mobileView === 'search' && (
-                <div className="p-4">
-                  {/* Search interface for mobile */}
-                  <h2 className="text-lg font-semibold mb-4">Search</h2>
-                  {/* Add search interface here */}
-                </div>
+              {currentView === 'tags' && (
+                <TagsPanel onSelectTag={handleSelectTag} />
               )}
-              {mobileView === 'profile' && (
-                <div className="p-4">
-                  {/* Profile/settings for mobile */}
-                  <h2 className="text-lg font-semibold mb-4">Profile</h2>
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <span className="text-primary font-medium">
-                          {user.initials}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-medium">{user.name}</p>
-                        <p className="text-sm text-slate-500">{user.email}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              {currentView === 'archive' && (
+                <ArchivePanel onSelectNote={handleSelectNote} />
+              )}
+              {currentView === 'preferences' && (
+                <PreferencesPanel />
               )}
             </div>
           )}
@@ -120,19 +105,46 @@ export default function Dashboard() {
     );
   }
 
-  // Desktop layout
+  // Desktop two-panel layout
   return (
-    <div className="min-h-screen flex">
-      <Sidebar onCreateNote={handleCreateNote} />
+    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
+      {/* Left Sidebar */}
+      <LeftSidebar
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        onCreateThought={handleCreateThought}
+      />
       
-      <main className="flex-1 flex">
-        <NotesPanel
-          onSelectNote={handleSelectNote}
-          onCreateNote={handleCreateNote}
-        />
-        
-        <NoteEditor note={selectedNote} />
-      </main>
+      {/* Right Panel */}
+      <div className="flex-1 flex">
+        {showEditor && selectedNote ? (
+          <NoteEditor
+            note={selectedNote}
+            onBack={handleBackToNotes}
+          />
+        ) : (
+          <div className="flex-1 bg-white dark:bg-gray-900">
+            {currentView === 'thoughts' && (
+              <NotesPanel
+                onSelectNote={handleSelectNote}
+                onCreateNote={handleCreateThought}
+              />
+            )}
+            {currentView === 'projects' && (
+              <ProjectsPanel onSelectProject={handleSelectProject} />
+            )}
+            {currentView === 'tags' && (
+              <TagsPanel onSelectTag={handleSelectTag} />
+            )}
+            {currentView === 'archive' && (
+              <ArchivePanel onSelectNote={handleSelectNote} />
+            )}
+            {currentView === 'preferences' && (
+              <PreferencesPanel />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
