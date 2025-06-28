@@ -14,21 +14,21 @@ import { useAuth } from "./useAuth";
 import { Note, UpdateNote } from "@shared/schema";
 
 export const useArchivedNotes = (projectId?: string) => {
-  const { user } = useAuth();
+  const { user, firebaseUser } = useAuth();
   const [archivedNotes, setArchivedNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !firebaseUser) {
       setArchivedNotes([]);
       setLoading(false);
       return;
     }
 
-    // Use simple query to avoid composite index requirement
+    // Use Firebase Auth UID to match iOS app data structure
     const q = query(
       collection(db, "notes"),
-      where("userId", "==", user.id),
+      where("userId", "==", firebaseUser.uid),
       orderBy("updatedAt", "desc")
     );
 
@@ -59,7 +59,7 @@ export const useArchivedNotes = (projectId?: string) => {
     });
 
     return () => unsubscribe();
-  }, [user, projectId]);
+  }, [user, firebaseUser, projectId]);
 
   const updateNote = async (noteId: string, updates: UpdateNote) => {
     const noteRef = doc(db, "notes", noteId);

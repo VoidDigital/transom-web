@@ -17,7 +17,7 @@ import { useAuth } from "./useAuth";
 import { Note, InsertNote, UpdateNote, Tag } from "@shared/schema";
 
 export const useNotes = (projectId?: string) => {
-  const { user } = useAuth();
+  const { user, firebaseUser } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
   const [allNotes, setAllNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,16 +27,17 @@ export const useNotes = (projectId?: string) => {
   const [activeTagFilters, setActiveTagFilters] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !firebaseUser) {
       setNotes([]);
+      setAllNotes([]);
       setLoading(false);
       return;
     }
 
-    // Use simple query to avoid composite index requirement
+    // Use Firebase Auth UID to match iOS app data structure
     const q = query(
       collection(db, "notes"),
-      where("userId", "==", user.id),
+      where("userId", "==", firebaseUser.uid),
       orderBy("updatedAt", "desc")
     );
 
@@ -66,7 +67,7 @@ export const useNotes = (projectId?: string) => {
     });
 
     return unsubscribe;
-  }, [user, projectId]);
+  }, [user, firebaseUser, projectId]);
 
   useEffect(() => {
     if (!user) {
