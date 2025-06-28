@@ -20,9 +20,9 @@ export default function SearchPanel({ onSelectNote }: SearchPanelProps) {
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
-  const [sortBy, setSortBy] = useState<'updated' | 'created' | 'title'>('updated');
+  const [sortBy, setSortBy] = useState<'updated' | 'created' | 'content'>('updated');
 
-  const { notes, allTags } = useNotes();
+  const { notes, tags } = useNotes();
   const { projects } = useProjects();
 
   const filteredNotes = useMemo(() => {
@@ -63,8 +63,8 @@ export default function SearchPanel({ onSelectNote }: SearchPanelProps) {
     // Sort
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'title':
-          return a.title.localeCompare(b.title);
+        case 'content':
+          return a.content.localeCompare(b.content);
         case 'created':
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         case 'updated':
@@ -97,7 +97,7 @@ export default function SearchPanel({ onSelectNote }: SearchPanelProps) {
   };
 
   const getTagName = (tagId: string) => {
-    return allTags.find(t => t.id === tagId)?.name || 'Unknown Tag';
+    return tags.find((t: any) => t.id === tagId)?.name || 'Unknown Tag';
   };
 
   return (
@@ -217,7 +217,7 @@ export default function SearchPanel({ onSelectNote }: SearchPanelProps) {
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-1">
-                    {note.title || 'Untitled'}
+                    {note.content.slice(0, 50) || 'Empty thought'}
                   </h3>
                   <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
                     {format(new Date(note.updatedAt), 'MMM dd')}
@@ -233,16 +233,16 @@ export default function SearchPanel({ onSelectNote }: SearchPanelProps) {
                     {getProjectName(note.projectId)}
                   </span>
                   
-                  {note.tagIds && note.tagIds.length > 0 && (
+                  {note.tags && note.tags.length > 0 && (
                     <div className="flex gap-1">
-                      {note.tagIds.slice(0, 3).map(tagId => (
+                      {note.tags.slice(0, 3).map(tagId => (
                         <Badge key={tagId} variant="outline" className="text-xs">
                           {getTagName(tagId)}
                         </Badge>
                       ))}
-                      {note.tagIds.length > 3 && (
+                      {note.tags.length > 3 && (
                         <Badge variant="outline" className="text-xs">
-                          +{note.tagIds.length - 3}
+                          +{note.tags.length - 3}
                         </Badge>
                       )}
                     </div>
