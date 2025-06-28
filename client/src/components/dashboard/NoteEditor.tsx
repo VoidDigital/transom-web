@@ -49,16 +49,15 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
           setIsSaving(true);
           const updates: UpdateNote = {};
           
-          if (title !== note.title) updates.title = title;
           if (content !== note.content) updates.content = content;
-          
+          if (selectedProjectId !== note.projectId) updates.projectId = selectedProjectId;
+
           if (Object.keys(updates).length > 0) {
             await updateNote(note.id, updates);
           }
-          
           setHasUnsavedChanges(false);
         } catch (error) {
-          console.error("Error saving note:", error);
+          console.error("Failed to save note:", error);
         } finally {
           setIsSaving(false);
         }
@@ -66,25 +65,25 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
     }, 1000);
 
     return () => clearTimeout(timeoutId);
-  }, [note, title, content, hasUnsavedChanges, updateNote]);
-
-  const handleTitleChange = (newTitle: string) => {
-    setTitle(newTitle);
-    setHasUnsavedChanges(true);
-  };
+  }, [note, content, selectedProjectId, hasUnsavedChanges, updateNote]);
 
   const handleContentChange = (newContent: string) => {
     setContent(newContent);
     setHasUnsavedChanges(true);
   };
 
-  const handleAddTag = async (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && newTag.trim() && note) {
+  const handleProjectChange = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleAddTag = async () => {
+    if (newTag.trim() && note) {
       try {
         await addTagToNote(note.id, newTag.trim());
         setNewTag("");
       } catch (error) {
-        console.error("Error adding tag:", error);
+        console.error("Failed to add tag:", error);
       }
     }
   };
@@ -94,28 +93,29 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
       try {
         await removeTagFromNote(note.id, tagId);
       } catch (error) {
-        console.error("Error removing tag:", error);
+        console.error("Failed to remove tag:", error);
       }
     }
   };
 
   const handleDelete = async () => {
-    if (note && confirm("Are you sure you want to delete this note?")) {
+    if (note && confirm("Are you sure you want to delete this thought?")) {
       try {
         await deleteNote(note.id);
         onBack?.();
       } catch (error) {
-        console.error("Error deleting note:", error);
+        console.error("Failed to delete note:", error);
       }
     }
   };
 
   if (!note) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8">
-        <p className="text-slate-500 text-center">
-          Select a note to start editing, or create a new one
-        </p>
+      <div className="flex-1 flex items-center justify-center text-gray-500">
+        <div className="text-center">
+          <h3 className="text-lg font-medium mb-2">No thought selected</h3>
+          <p>Select a thought from the sidebar to start writing</p>
+        </div>
       </div>
     );
   }
@@ -123,76 +123,120 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   const noteTags = getTagsForNote(note);
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 lg:p-6 border-b border-slate-200">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3 flex-1 min-w-0">
-            {onBack && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onBack}
-                className="lg:hidden"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-            )}
-            <div className="flex-1 min-w-0">
-              <Input
-                value={title}
-                onChange={(e) => handleTitleChange(e.target.value)}
-                placeholder="Note title..."
-                className="text-lg font-semibold border-none shadow-none p-0 focus-visible:ring-0"
-              />
-              <p className="text-sm text-slate-500">
-                Last edited {formatDistanceToNow(note.updatedAt, { addSuffix: true })}
-              </p>
-            </div>
-          </div>
+      <div className="px-4 lg:px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          {onBack && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="lg:hidden"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+          )}
+          
+          {/* Project Selection */}
           <div className="flex items-center space-x-2">
-            <div className="text-xs text-slate-500 flex items-center space-x-1">
-              <Cloud className={`w-4 h-4 ${isSaving ? 'text-blue-500' : 'text-emerald-500'}`} />
-              <span>{isSaving ? 'Saving...' : 'Saved'}</span>
-            </div>
-            <Button variant="ghost" size="sm">
-              <Share className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4" />
-            </Button>
+            <Folder className="w-4 h-4 text-gray-500" />
+            <Select value={selectedProjectId} onValueChange={handleProjectChange}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Select project" />
+              </SelectTrigger>
+              <SelectContent>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2 items-center">
-          {noteTags.map((tag) => (
-            <Badge key={tag.id} variant="secondary" className="text-xs">
-              {tag.name}
-              <button
-                onClick={() => handleRemoveTag(tag.id)}
-                className="ml-1.5 hover:text-destructive"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </Badge>
-          ))}
-          <Input
-            value={newTag}
-            onChange={(e) => setNewTag(e.target.value)}
-            onKeyPress={handleAddTag}
-            placeholder="Add tag..."
-            className="h-auto px-2.5 py-1 text-xs border-dashed w-20 min-w-20 focus:w-32 transition-all"
-          />
+        <div className="flex items-center space-x-2">
+          {isSaving && (
+            <div className="flex items-center space-x-1 text-sm text-gray-500">
+              <Cloud className="w-4 h-4 animate-pulse" />
+              <span>Saving...</span>
+            </div>
+          )}
+          <Button variant="ghost" size="sm">
+            <Share className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleDelete}>
+            <Trash2 className="w-4 h-4" />
+          </Button>
         </div>
       </div>
 
-      {/* Editor */}
-      <div className="flex-1">
-        <RichTextEditor
-          content={content}
-          onChange={handleContentChange}
-        />
+      {/* Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 p-4 lg:p-6">
+          <RichTextEditor
+            content={content}
+            onChange={handleContentChange}
+          />
+        </div>
+
+        {/* Tags Section */}
+        <div className="px-4 lg:px-6 py-4 border-t border-gray-200">
+          <div className="flex items-center space-x-2 mb-3">
+            <Tag className="w-4 h-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">Tags</span>
+          </div>
+          
+          {/* Existing Tags */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {noteTags.map((tag) => (
+              <Badge
+                key={tag.id}
+                variant="secondary"
+                className="flex items-center space-x-1"
+              >
+                <span>{tag.name}</span>
+                <button
+                  onClick={() => handleRemoveTag(tag.id)}
+                  className="ml-1 hover:text-red-500"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+
+          {/* Add New Tag */}
+          <div className="flex space-x-2">
+            <Input
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              placeholder="Add a tag..."
+              className="flex-1"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddTag();
+                }
+              }}
+            />
+            <Button
+              onClick={handleAddTag}
+              disabled={!newTag.trim()}
+              size="sm"
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer with metadata */}
+      <div className="px-4 lg:px-6 py-2 border-t border-gray-200 text-xs text-gray-500">
+        {note.updatedAt && (
+          <span>Last edited {formatDistanceToNow(note.updatedAt)} ago</span>
+        )}
       </div>
     </div>
   );

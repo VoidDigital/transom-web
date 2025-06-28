@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotes } from "@/hooks/useNotes";
+import { useProjects } from "@/hooks/useProjects";
 import LeftSidebar from "@/components/dashboard/LeftSidebar";
 import NotesPanel from "@/components/dashboard/NotesPanel";
 import NoteEditor from "@/components/dashboard/NoteEditor";
@@ -15,6 +16,7 @@ import { Note, InsertNote } from "@shared/schema";
 export default function Dashboard() {
   const { user } = useAuth();
   const { createNote, selectedNote, setSelectedNote } = useNotes();
+  const { selectedProject } = useProjects();
   
   const [currentView, setCurrentView] = useState<'thoughts' | 'projects' | 'tags' | 'archive' | 'preferences'>('thoughts');
   const [showEditor, setShowEditor] = useState(false);
@@ -24,9 +26,9 @@ export default function Dashboard() {
 
     try {
       const newNoteData: InsertNote = {
-        title: "Untitled Thought",
         content: "",
-        projectId: "",
+        userId: user.id,
+        projectId: selectedProject?.id || "",
         tags: [],
       };
 

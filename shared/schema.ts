@@ -63,7 +63,6 @@ export type InsertTag = z.infer<typeof insertTagSchema>;
 // Note schema (also called "Thoughts")
 export const noteSchema = z.object({
   id: z.string(),
-  title: z.string(),
   content: z.string(),
   projectId: z.string(),
   userId: z.string(),
