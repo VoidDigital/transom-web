@@ -166,6 +166,7 @@ export const useNotes = (projectId?: string) => {
       id: docRef.id,
       name: tagName,
       userId: user.id,
+      isPiece: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

@@ -45,12 +45,14 @@ export const tagSchema = z.object({
   id: z.string(),
   name: z.string(),
   userId: z.string(),
+  isPiece: z.boolean().default(false), // true for Project tags, false for regular tags
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
 export const insertTagSchema = tagSchema.omit({
   id: true,
+  isPiece: true,
   createdAt: true,
   updatedAt: true,
 });

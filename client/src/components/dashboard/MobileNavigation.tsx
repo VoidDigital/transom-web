@@ -1,10 +1,10 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { PenTool, StickyNote, Folder, Search, User, Archive } from "lucide-react";
+import { PenTool, StickyNote, Folder, Tag, Archive, Settings } from "lucide-react";
 
 interface MobileNavigationProps {
-  currentView: 'notes' | 'projects' | 'search' | 'archive' | 'profile';
-  onViewChange: (view: 'notes' | 'projects' | 'search' | 'archive' | 'profile') => void;
+  currentView: 'thoughts' | 'projects' | 'tags' | 'archive' | 'preferences';
+  onViewChange: (view: 'thoughts' | 'projects' | 'tags' | 'archive' | 'preferences') => void;
   onCreateNote: () => void;
 }
 
@@ -36,13 +36,13 @@ export default function MobileNavigation({
       <nav className="lg:hidden bg-white border-t border-slate-200 px-6 py-3">
         <div className="flex justify-around">
           <button
-            onClick={() => onViewChange('notes')}
+            onClick={() => onViewChange('thoughts')}
             className={`flex flex-col items-center py-2 ${
-              currentView === 'notes' ? 'text-primary' : 'text-slate-400'
+              currentView === 'thoughts' ? 'text-primary' : 'text-slate-400'
             }`}
           >
             <StickyNote className="w-5 h-5 mb-1" />
-            <span className="text-xs font-medium">Notes</span>
+            <span className="text-xs font-medium">Thoughts</span>
           </button>
           <button
             onClick={() => onViewChange('projects')}
@@ -54,22 +54,31 @@ export default function MobileNavigation({
             <span className="text-xs">Projects</span>
           </button>
           <button
-            onClick={() => onViewChange('search')}
+            onClick={() => onViewChange('tags')}
             className={`flex flex-col items-center py-2 ${
-              currentView === 'search' ? 'text-primary' : 'text-slate-400'
+              currentView === 'tags' ? 'text-primary' : 'text-slate-400'
             }`}
           >
-            <Search className="w-5 h-5 mb-1" />
-            <span className="text-xs">Search</span>
+            <Tag className="w-5 h-5 mb-1" />
+            <span className="text-xs">Tags</span>
           </button>
           <button
-            onClick={() => onViewChange('profile')}
+            onClick={() => onViewChange('archive')}
             className={`flex flex-col items-center py-2 ${
-              currentView === 'profile' ? 'text-primary' : 'text-slate-400'
+              currentView === 'archive' ? 'text-primary' : 'text-slate-400'
             }`}
           >
-            <User className="w-5 h-5 mb-1" />
-            <span className="text-xs">Profile</span>
+            <Archive className="w-5 h-5 mb-1" />
+            <span className="text-xs">Archive</span>
+          </button>
+          <button
+            onClick={() => onViewChange('preferences')}
+            className={`flex flex-col items-center py-2 ${
+              currentView === 'preferences' ? 'text-primary' : 'text-slate-400'
+            }`}
+          >
+            <Settings className="w-5 h-5 mb-1" />
+            <span className="text-xs">Settings</span>
           </button>
         </div>
       </nav>
