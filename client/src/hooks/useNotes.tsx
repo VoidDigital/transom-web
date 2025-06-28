@@ -10,6 +10,7 @@ import {
   deleteDoc, 
   doc,
   getDocs,
+  getDoc,
   writeBatch
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -36,6 +37,7 @@ export const useNotes = (projectId?: string) => {
     }
 
     // Debug logging to check user data
+    console.log("🔍 Firebase Project ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID);
     console.log("🔍 Firebase User UID:", firebaseUser.uid);
     console.log("🔍 User Email:", firebaseUser.email);
     console.log("🔍 Custom User Data:", user);
@@ -48,6 +50,21 @@ export const useNotes = (projectId?: string) => {
     );
 
     console.log("🔍 Querying notes with userId:", firebaseUser.uid);
+    
+    // Check for the specific note ID from iOS
+    getDoc(doc(db, "notes", "OTrIhzqCu8Qewl3w921")).then((docSnap) => {
+      console.log("🔍 Specific note OTrIhzqCu8Qewl3w921 exists:", docSnap.exists());
+      if (docSnap.exists()) {
+        const noteData = docSnap.data();
+        console.log("🔍 iOS note data:", {
+          userId: noteData.userId,
+          content: noteData.content?.substring(0, 50),
+          createdAt: noteData.createdAt
+        });
+      } else {
+        console.log("🔍 Note OTrIhzqCu8Qewl3w921 not found - checking if we need to update Firebase config");
+      }
+    }).catch(err => console.log("🔍 Error checking specific note:", err));
 
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       console.log("🔍 Firebase query returned", snapshot.docs.length, "notes");
