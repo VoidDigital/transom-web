@@ -1,4 +1,4 @@
-import { StickyNote, Folder, Tag, Archive, Settings, PenTool, Plus } from 'lucide-react';
+import { StickyNote, Folder, Tag, Archive, Settings, PenTool, Plus, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotes } from '@/hooks/useNotes';
@@ -11,7 +11,7 @@ interface LeftSidebarProps {
 }
 
 export default function LeftSidebar({ currentView, onViewChange, onCreateThought }: LeftSidebarProps) {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { notes, tags } = useNotes();
   const { archivedNotes } = useArchivedNotes();
 
@@ -110,7 +110,7 @@ export default function LeftSidebar({ currentView, onViewChange, onCreateThought
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-3">
           <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
             <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
               {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
@@ -125,6 +125,16 @@ export default function LeftSidebar({ currentView, onViewChange, onCreateThought
             </p>
           </div>
         </div>
+        
+        <Button 
+          onClick={signOut}
+          variant="outline" 
+          size="sm" 
+          className="w-full flex items-center gap-2"
+        >
+          <LogOut className="w-4 h-4" />
+          Sign Out
+        </Button>
       </div>
     </div>
   );
