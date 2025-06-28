@@ -19,15 +19,7 @@ export const signInWithGoogle = () => {
 };
 
 export const signInWithEmail = async (email: string, password: string) => {
-  console.log("signInWithEmail called with:", email);
-  try {
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    console.log("Firebase signInWithEmailAndPassword successful:", result.user.uid);
-    return result;
-  } catch (error) {
-    console.error("Firebase signInWithEmailAndPassword failed:", error);
-    throw error;
-  }
+  return signInWithEmailAndPassword(auth, email, password);
 };
 
 export const signUpWithEmail = async (email: string, password: string, name: string) => {
@@ -104,7 +96,9 @@ export const getCurrentUser = async (): Promise<User | null> => {
     };
   }
 
-  return null;
+  // User document doesn't exist, create it
+  console.log("User document doesn't exist, creating user profile");
+  return await createOrUpdateUser(firebaseUser);
 };
 
 export const onAuthStateChange = (callback: (user: FirebaseUser | null) => void) => {

@@ -30,20 +30,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChange(async (firebaseUser) => {
+      console.log("Auth state changed:", firebaseUser ? `User: ${firebaseUser.email}` : "No user");
       setFirebaseUser(firebaseUser);
       
       if (firebaseUser) {
         try {
+          console.log("Getting user data for:", firebaseUser.email);
           const userData = await getCurrentUser();
+          console.log("User data retrieved:", userData);
           setUser(userData);
         } catch (error) {
           console.error("Error getting user data:", error);
           setUser(null);
         }
       } else {
+        console.log("Setting user to null");
         setUser(null);
       }
       
+      console.log("Setting loading to false");
       setLoading(false);
     });
 
