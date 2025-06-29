@@ -71,12 +71,17 @@ export const useNotes = (projectId?: string) => {
       
       const notesData = snapshot.docs.map(doc => {
         const data = doc.data();
-        console.log("🔍 Note data:", {
+        console.log("🔍 Full Note data:", {
           id: doc.id,
           userId: data.userId,
           content: data.content?.substring(0, 50) + "...",
           createdAt: data.createdAt,
-          updatedAt: data.updatedAt
+          updatedAt: data.updatedAt,
+          isArchived: data.isArchived,
+          isDeleted: data.isDeleted,
+          projectId: data.projectId,
+          tags: data.tags,
+          title: data.title
         });
         
         return {
@@ -114,9 +119,15 @@ export const useNotes = (projectId?: string) => {
       console.log("🔍 Archived notes:", notesData.filter(note => note.isArchived).length);
       
       // Filter client-side to avoid composite index requirements
-      let filteredNotes = notesData.filter(note => !note.isArchived);
+      let filteredNotes = notesData.filter(note => !note.isArchived && !note.isDeleted);
       
-      console.log("🔍 Notes after archive filter:", filteredNotes.length);
+      console.log("🔍 Notes after archive/delete filter:", filteredNotes.length);
+      console.log("🔍 Filtering details:", {
+        total: notesData.length,
+        archived: notesData.filter(n => n.isArchived).length,
+        deleted: notesData.filter(n => n.isDeleted).length,
+        visible: filteredNotes.length
+      });
       
       if (projectId) {
         filteredNotes = filteredNotes.filter(note => note.projectId === projectId);
