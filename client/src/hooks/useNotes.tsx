@@ -103,8 +103,8 @@ export const useNotes = (projectId?: string) => {
             projectId: noteData.projectId || null,
             tags: noteData.tags || [],
             isArchived: noteData.isArchived || false,
-            createdAt: noteData.createdAt ? new Date(noteData.createdAt > 1e10 ? noteData.createdAt : noteData.createdAt * 1000) : new Date(),
-            updatedAt: noteData.updatedAt ? new Date(noteData.updatedAt > 1e10 ? noteData.updatedAt : noteData.updatedAt * 1000) : new Date(noteData.createdAt > 1e10 ? noteData.createdAt : noteData.createdAt * 1000)
+            createdAt: noteData.createdAt ? new Date(Math.floor(noteData.createdAt) > 1e10 ? Math.floor(noteData.createdAt) : Math.floor(noteData.createdAt * 1000)) : new Date(),
+            updatedAt: noteData.updatedAt ? new Date(Math.floor(noteData.updatedAt) > 1e10 ? Math.floor(noteData.updatedAt) : Math.floor(noteData.updatedAt * 1000)) : new Date(Math.floor(noteData.createdAt) > 1e10 ? Math.floor(noteData.createdAt) : Math.floor(noteData.createdAt * 1000))
           } as Note;
         });
 
@@ -209,8 +209,8 @@ export const useNotes = (projectId?: string) => {
       text: noteData.content, // iOS uses "text" instead of "content"
       isArchived: false,
       tags: noteData.tags || [],
-      createdAt: Date.now() / 1000, // iOS uses seconds, not milliseconds
-      updatedAt: Date.now() / 1000,
+      createdAt: Date.now(), // Use milliseconds as integer for consistency
+      updatedAt: Date.now(),
     };
 
     await update(newNoteRef, thoughtToSave);
@@ -236,7 +236,7 @@ export const useNotes = (projectId?: string) => {
     
     // Convert web app updates to iOS format
     const thoughtUpdates: any = {
-      updatedAt: Date.now() / 1000, // iOS uses seconds
+      updatedAt: Date.now(), // Use milliseconds as integer for consistency
     };
     
     if (updates.content !== undefined) {
