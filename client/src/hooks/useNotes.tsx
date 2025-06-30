@@ -85,23 +85,26 @@ export const useNotes = (projectId?: string) => {
       // Process notes data - no need to filter by userId since we're already in user's email path
       const userNotes = Object.entries(allNotesData || {})
         .map(([noteId, noteData]: [string, any]) => {
-          console.log("🔍 Full Note data:", {
+          console.log("🔍 iOS Thought data:", {
             id: noteId,
-            userId: noteData.userId,
-            content: noteData.content?.substring(0, 50) + "...",
+            text: noteData.text?.substring(0, 50) + "...",
             createdAt: noteData.createdAt,
             updatedAt: noteData.updatedAt,
             isArchived: noteData.isArchived,
-            projectId: noteData.projectId,
-            tags: noteData.tags,
-            title: noteData.title
+            tags: noteData.tags
           });
           
+          // Map iOS data structure to web app structure
           return {
             id: noteId,
-            ...noteData,
-            createdAt: noteData.createdAt ? new Date(noteData.createdAt) : new Date(),
-            updatedAt: noteData.updatedAt ? new Date(noteData.updatedAt) : new Date(),
+            title: noteData.title || "", // iOS doesn't seem to have titles, use empty string
+            content: noteData.text || "", // iOS uses "text", web app uses "content"
+            userId: firebaseUser.uid, // Use current user ID
+            projectId: noteData.projectId || null,
+            tags: noteData.tags || [],
+            isArchived: noteData.isArchived || false,
+            createdAt: noteData.createdAt ? new Date(noteData.createdAt * 1000) : new Date(), // iOS uses seconds
+            updatedAt: noteData.updatedAt ? new Date(noteData.updatedAt * 1000) : new Date(), // iOS uses seconds
           } as Note;
         });
 
@@ -196,17 +199,21 @@ export const useNotes = (projectId?: string) => {
   const createNote = async (noteData: InsertNote): Promise<Note> => {
     if (!user || !firebaseUser) throw new Error("User not authenticated");
 
-    const notesRef = ref(db, 'notes');
-    const newNoteRef = push(notesRef);
+    // Use email-based path matching iOS app structure
+    const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
+    const thoughtsRef = ref(db, `${emailKey}/thoughts`);
+    const newNoteRef = push(thoughtsRef);
     
-    const noteToSave = {
-      ...noteData,
-      userId: firebaseUser.uid,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    // Convert web app format to iOS format
+    const thoughtToSave = {
+      text: noteData.content, // iOS uses "text" instead of "content"
+      isArchived: false,
+      tags: noteData.tags || [],
+      createdAt: Date.now() / 1000, // iOS uses seconds, not milliseconds
+      updatedAt: Date.now() / 1000,
     };
 
-    await update(newNoteRef, noteToSave);
+    await update(newNoteRef, thoughtToSave);
 
     const newNote: Note = {
       id: newNoteRef.key!,
@@ -221,15 +228,36 @@ export const useNotes = (projectId?: string) => {
   };
 
   const updateNote = async (noteId: string, updates: UpdateNote) => {
-    const noteRef = ref(db, `notes/${noteId}`);
-    await update(noteRef, {
-      ...updates,
-      updatedAt: new Date().toISOString(),
-    });
+    if (!firebaseUser) throw new Error("User not authenticated");
+    
+    // Use email-based path matching iOS app structure
+    const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
+    const noteRef = ref(db, `${emailKey}/thoughts/${noteId}`);
+    
+    // Convert web app updates to iOS format
+    const thoughtUpdates: any = {
+      updatedAt: Date.now() / 1000, // iOS uses seconds
+    };
+    
+    if (updates.content !== undefined) {
+      thoughtUpdates.text = updates.content; // iOS uses "text"
+    }
+    if (updates.isArchived !== undefined) {
+      thoughtUpdates.isArchived = updates.isArchived;
+    }
+    if (updates.tags !== undefined) {
+      thoughtUpdates.tags = updates.tags;
+    }
+    
+    await update(noteRef, thoughtUpdates);
   };
 
   const deleteNote = async (noteId: string) => {
-    const noteRef = ref(db, `notes/${noteId}`);
+    if (!firebaseUser) throw new Error("User not authenticated");
+    
+    // Use email-based path matching iOS app structure
+    const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
+    const noteRef = ref(db, `${emailKey}/thoughts/${noteId}`);
     await remove(noteRef);
     
     if (selectedNote?.id === noteId) {
