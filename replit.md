@@ -142,14 +142,20 @@ Preferred communication style: Simple, everyday language.
 - **iOS App Integration Complete**: Successfully achieved 100% data compatibility with iOS app
   - Fixed database paths: using `/thoughts` collection instead of `/notes` (matching iOS Swift code)
   - Fixed field mapping: iOS `text` field correctly mapped to web app `content` field
-  - Fixed timestamp format: iOS uses seconds, converted from web app milliseconds
+  - Fixed timestamp format: iOS uses seconds, converted from web app milliseconds with automatic detection
   - Email-based user paths with ▦ character replacement working correctly
   
 - **Rich Text HTML Parser**: Added complete HTML content rendering system
   - Created HtmlContent component to safely parse and display iOS HTML-formatted thoughts
   - iOS thoughts now display as proper rich text instead of raw HTML
-  - SimpleTextEditor handles bidirectional conversion between HTML storage and plain text editing
+  - SimpleTextEditor temporarily saves as plain text (removed automatic div wrapping)
   - Maintains iOS HTML format compatibility for seamless cross-platform sync
+
+- **UI Improvements**: Enhanced thoughts list display and sorting
+  - Implemented chronological sorting with most recently updated thoughts first
+  - Added custom time formatting: "just now", "X minutes/hours/days ago" with proper grammar
+  - Fixed timestamp conversion to handle both seconds and milliseconds from iOS
+  - Removed automatic div tag wrapping for new thoughts
 
 - **Database Migration**: Successfully converted entire codebase from Firestore to Firebase Realtime Database
   - Updated all CRUD operations in useNotes.tsx, useProjects.tsx, and useAuth.tsx

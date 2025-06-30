@@ -25,8 +25,8 @@ export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    // Wrap plain text in div for HTML storage
-    onChange(`<div>${e.target.value}</div>`);
+    // Store as plain text for now (will update to match iOS HTML schema later)
+    onChange(e.target.value);
   };
 
   return (
