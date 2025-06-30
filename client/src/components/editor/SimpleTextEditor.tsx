@@ -8,23 +8,35 @@ interface SimpleTextEditorProps {
 export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
   // Extract plain text from HTML content (from iOS app)
   const getPlainText = (htmlContent: string) => {
-    console.log('🔍 SimpleTextEditor - Input content:', htmlContent);
-    
     if (!htmlContent) return '';
     
-    // If it's complex HTML from iOS, extract text content
+    // If it's complex HTML from iOS, extract only the body text content
     if (htmlContent.includes('<!DOCTYPE html') || htmlContent.includes('<body>')) {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = htmlContent;
-      const bodyContent = tempDiv.querySelector('body');
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, 'text/html');
+      const bodyContent = doc.body;
       
       if (bodyContent) {
-        // Remove style elements and script elements from body content
-        const styleElements = bodyContent.querySelectorAll('style, script');
-        styleElements.forEach(el => el.remove());
+        // Remove style and script elements
+        const unwantedElements = bodyContent.querySelectorAll('style, script, meta');
+        unwantedElements.forEach(el => el.remove());
         
-        const plainText = bodyContent.textContent || bodyContent.innerText || '';
-        console.log('🔍 SimpleTextEditor - Extracted from complex HTML:', plainText);
+        // Get only the text content from paragraphs and spans
+        const textElements = bodyContent.querySelectorAll('p, span, div');
+        let plainText = '';
+        
+        textElements.forEach(el => {
+          const text = el.textContent || '';
+          if (text.trim() && !text.includes('{') && !text.includes('margin:')) {
+            plainText += text.trim() + '\n';
+          }
+        });
+        
+        // Fallback to full body text if no specific elements found
+        if (!plainText.trim()) {
+          plainText = bodyContent.textContent || bodyContent.innerText || '';
+        }
+        
         return plainText.trim();
       }
     }
@@ -33,7 +45,6 @@ export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
     const plainText = tempDiv.textContent || tempDiv.innerText || '';
-    console.log('🔍 SimpleTextEditor - Extracted from simple HTML:', plainText);
     return plainText.trim();
   };
 
@@ -56,7 +67,7 @@ export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
         border: 'none',
         padding: 0,
         margin: 0,
-        background: 'transparent'
+        background: '#fff'
       }}
       dir="ltr"
       placeholder="Start writing your thought..."
