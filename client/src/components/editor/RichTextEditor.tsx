@@ -16,59 +16,31 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       // Process HTML content from iOS app
       let processedContent = content;
       
-      // Extract text content from complex HTML structures like iOS exports
+      // Extract and clean iOS HTML content
       if (content.includes('<!DOCTYPE html') || content.includes('<body>')) {
-        // Create temporary DOM element to parse complex HTML
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = content;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, 'text/html');
+        const bodyContent = doc.body;
         
-        // Extract text content while preserving basic formatting
-        const bodyContent = tempDiv.querySelector('body') || tempDiv;
-        processedContent = bodyContent.innerHTML || bodyContent.textContent || '';
-        
-        // Clean up extra styling but keep basic formatting
-        processedContent = processedContent
-          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Remove style tags
-          .replace(/<meta[^>]*>/gi, '') // Remove meta tags
-          .replace(/class="[^"]*"/gi, '') // Remove class attributes
-          .replace(/style="[^"]*"/gi, '') // Remove inline styles
-          .replace(/<span[^>]*>(.*?)<\/span>/gi, '$1') // Unwrap spans
-          .replace(/<p[^>]*>/gi, '<div>') // Convert p to div
-          .replace(/<\/p>/gi, '</div>'); // Convert p to div
+        if (bodyContent) {
+          // Remove unwanted elements
+          const unwantedElements = bodyContent.querySelectorAll('style, script, meta');
+          unwantedElements.forEach(el => el.remove());
+          
+          // Get the processed HTML with basic formatting preserved
+          processedContent = bodyContent.innerHTML
+            .replace(/class="[^"]*"/gi, '') // Remove class attributes
+            .replace(/style="[^"]*"/gi, '') // Remove inline styles
+            .replace(/<span[^>]*>/gi, '') // Remove span opening tags
+            .replace(/<\/span>/gi, '') // Remove span closing tags
+            .replace(/<p[^>]*>/gi, '<div>') // Convert p to div
+            .replace(/<\/p>/gi, '</div>'); // Convert p to div
+        }
       }
       
       editorRef.current.innerHTML = processedContent;
-      
-      // Force text direction after content update
-      editorRef.current.style.direction = 'ltr';
-      editorRef.current.style.textAlign = 'left';
     }
   }, [content, isUpdating]);
-
-  // Simple text direction enforcement
-  useEffect(() => {
-    const editor = editorRef.current;
-    if (editor) {
-      const enforceDirection = () => {
-        editor.style.direction = 'ltr';
-        editor.style.textAlign = 'left';
-        editor.style.unicodeBidi = 'embed';
-      };
-      
-      editor.addEventListener('input', enforceDirection);
-      editor.addEventListener('keydown', enforceDirection);
-      editor.addEventListener('focus', enforceDirection);
-      
-      // Set initial direction
-      enforceDirection();
-      
-      return () => {
-        editor.removeEventListener('input', enforceDirection);
-        editor.removeEventListener('keydown', enforceDirection);
-        editor.removeEventListener('focus', enforceDirection);
-      };
-    }
-  }, []);
 
   const handleInput = () => {
     if (editorRef.current) {
@@ -102,40 +74,12 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           break;
       }
     }
-    
-    // Fix RTL issue by intercepting character input
-    if (!e.ctrlKey && !e.metaKey && !e.altKey && e.key.length === 1 && /[a-zA-Z0-9\s]/.test(e.key)) {
-      e.preventDefault();
-      
-      // Insert character with proper LTR context
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        range.deleteContents();
-        
-        // Create a span with explicit LTR direction
-        const span = document.createElement('span');
-        span.style.direction = 'ltr';
-        span.style.unicodeBidi = 'embed';
-        span.textContent = e.key;
-        
-        range.insertNode(span);
-        
-        // Move cursor after the inserted character
-        range.setStartAfter(span);
-        range.setEndAfter(span);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        
-        handleInput();
-      }
-    }
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="flex flex-col h-full">
       {/* Toolbar - Only iOS app features: Bold, Italic, Underline, Bulleted Lists */}
-      <div className="border-b bg-gray-50 p-2 flex gap-1">
+      <div className="border-b bg-gray-50 p-2 flex gap-1 flex-shrink-0">
         <Button
           size="sm"
           variant="ghost"
@@ -183,17 +127,15 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         contentEditable
         onInput={handleInput}
         onKeyDown={handleKeyDown}
-        className="min-h-[200px] p-4 focus:outline-none prose prose-sm max-w-none"
+        className="w-full h-full p-0 focus:outline-none"
         style={{ 
           direction: 'ltr', 
           textAlign: 'left',
-          unicodeBidi: 'embed',
-          writingMode: 'horizontal-tb'
+          background: '#fff',
+          border: 'none',
+          minHeight: '100%'
         }}
-        dir="ltr"
-        lang="en"
         suppressContentEditableWarning={true}
-        data-placeholder="Start writing your thought..."
       />
     </div>
   );
