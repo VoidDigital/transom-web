@@ -1,6 +1,6 @@
 import { initializeApp, getApps, deleteApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 
 // Use your iOS Firebase project configuration directly
 const firebaseConfig = {
@@ -28,7 +28,7 @@ if (getApps().length > 0) {
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const db = getDatabase(app);
 
 // Clear any cached authentication to force fresh login with iOS project
 auth.signOut().catch(() => {

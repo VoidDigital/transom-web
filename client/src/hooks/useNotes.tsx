@@ -1,18 +1,16 @@
 import { useState, useEffect } from "react";
 import { 
-  collection, 
+  ref, 
   query, 
-  where, 
-  orderBy, 
-  onSnapshot, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  doc,
-  getDocs,
-  getDoc,
-  writeBatch
-} from "firebase/firestore";
+  orderByChild, 
+  equalTo,
+  onValue, 
+  push, 
+  update, 
+  remove,
+  get,
+  child
+} from "firebase/database";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./useAuth";
 import { Note, InsertNote, UpdateNote, Tag } from "@shared/schema";
