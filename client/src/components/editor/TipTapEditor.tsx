@@ -3,6 +3,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import BulletList from '@tiptap/extension-bullet-list'
 import ListItem from '@tiptap/extension-list-item'
+import { Extension } from '@tiptap/core'
 import { Button } from "@/components/ui/button"
 import { Bold, Italic, Underline as UnderlineIcon, List } from "lucide-react"
 import { useEffect } from 'react'
@@ -11,6 +12,19 @@ interface TipTapEditorProps {
   content: string;
   onChange: (content: string) => void;
 }
+
+// Custom extension to handle space bar explicitly
+const SpaceHandler = Extension.create({
+  name: 'spaceHandler',
+  
+  addKeyboardShortcuts() {
+    return {
+      'Space': () => {
+        return this.editor.commands.insertContent(' ')
+      },
+    }
+  },
+})
 
 export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
   const editor = useEditor({
@@ -27,6 +41,7 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
         },
       }),
       ListItem,
+      SpaceHandler,
     ],
     content: convertToTipTapFormat(content),
     onUpdate: ({ editor }) => {
