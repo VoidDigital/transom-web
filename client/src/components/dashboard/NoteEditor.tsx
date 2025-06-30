@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SimpleTextEditor } from "@/components/editor/SimpleTextEditor";
 import { RichTextEditor } from "@/components/editor/RichTextEditor";
+import { TipTapEditor } from "@/components/editor/TipTapEditor";
 import { HtmlContent } from "@/components/ui/html-content";
 import { Note, UpdateNote } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
@@ -33,7 +34,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   const [newTag, setNewTag] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [useRichText, setUseRichText] = useState(false); // Default to stable plain text editor
+  const [editorType, setEditorType] = useState<'plain' | 'rich' | 'tiptap'>('tiptap'); // Default to TipTap
 
   useEffect(() => {
     if (note) {
@@ -169,10 +170,14 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setUseRichText(!useRichText)}
+            onClick={() => {
+              if (editorType === 'plain') setEditorType('tiptap');
+              else if (editorType === 'tiptap') setEditorType('rich');
+              else setEditorType('plain');
+            }}
             className="text-xs"
           >
-            {useRichText ? "Plain" : "Rich"}
+            {editorType === 'plain' ? "Plain" : editorType === 'tiptap' ? "TipTap" : "Rich"}
           </Button>
           <Button variant="ghost" size="sm">
             <Share className="w-4 h-4" />
@@ -186,7 +191,12 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
       {/* Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 p-4 lg:p-6">
-          {useRichText ? (
+          {editorType === 'tiptap' ? (
+            <TipTapEditor
+              content={content}
+              onChange={handleContentChange}
+            />
+          ) : editorType === 'rich' ? (
             <RichTextEditor
               content={content}
               onChange={handleContentChange}
