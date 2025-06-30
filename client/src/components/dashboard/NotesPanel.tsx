@@ -141,12 +141,14 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
               }`}
             >
               <div className="flex items-center justify-between h-full min-w-0">
-                <div className="flex-1 text-sm text-slate-600 mr-4 min-w-0">
-                  <div className="relative h-[65px] overflow-hidden break-words leading-relaxed">
-                    <HtmlContent 
-                      content={note.content}
-                      className="[&>*]:text-sm [&>*]:text-slate-600 [&>*]:break-words [&>*]:leading-relaxed [&>*]:m-0"
-                    />
+                <div className="flex-1 text-sm text-slate-600 mr-4 min-w-0 flex items-center">
+                  <div className="relative w-full h-[65px] overflow-hidden break-words leading-relaxed flex items-center">
+                    <div className="w-full">
+                      <HtmlContent 
+                        content={note.content.trim()}
+                        className="[&>*]:text-sm [&>*]:text-slate-600 [&>*]:break-words [&>*]:leading-relaxed [&>*]:m-0"
+                      />
+                    </div>
                     {/* Only show fade if content is likely to overflow (rough estimate) */}
                     {getPreviewText(note.content).length > 120 && (
                       <div className={`absolute bottom-0 left-0 right-0 h-6 pointer-events-none transition-colors duration-150 ${
