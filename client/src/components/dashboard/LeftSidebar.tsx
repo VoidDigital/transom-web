@@ -65,12 +65,6 @@ export default function LeftSidebar({ currentView, onViewChange, onCreateThought
       icon: Archive,
       label: 'Archive',
       count: archiveCount
-    },
-    {
-      id: 'preferences' as const,
-      icon: Settings,
-      label: 'Preferences',
-      count: preferencesCount
     }
   ];
 
