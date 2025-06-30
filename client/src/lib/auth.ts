@@ -99,6 +99,16 @@ export const getCurrentUser = async (): Promise<User | null> => {
 
     console.log("🔍 Getting user data for:", firebaseUser.uid, firebaseUser.email);
     
+    // Check Firebase auth token details
+    try {
+      const token = await firebaseUser.getIdToken();
+      const tokenResult = await firebaseUser.getIdTokenResult();
+      console.log("🔍 Firebase auth token claims:", tokenResult.claims);
+      console.log("🔍 Token email:", tokenResult.claims.email);
+    } catch (tokenError) {
+      console.log("🔍 Could not get token details:", tokenError);
+    }
+    
     // Use email-based path matching iOS app format
     const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
     console.log("🔍 Using email key for data path:", emailKey);
