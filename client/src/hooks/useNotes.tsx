@@ -111,7 +111,7 @@ export const useNotes = (projectId?: string) => {
         .map(async (note: Note) => {
           console.log("🔧 Auto-migrating reversed text for note:", note.id);
           try {
-            await migrateNoteContent(note.id, note.content);
+            await migrateNoteContent(note.id, note.content, user.email);
             console.log("✅ Successfully migrated note:", note.id);
           } catch (error) {
             console.error("❌ Failed to migrate note:", note.id, error);
