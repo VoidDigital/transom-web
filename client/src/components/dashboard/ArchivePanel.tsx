@@ -3,8 +3,7 @@ import { Archive, Trash2, RotateCcw, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useArchivedNotes } from '@/hooks/useArchivedNotes';
-import { useProjects } from '@/hooks/useProjects';
+import { useNotes } from '@/hooks/useNotes';
 import { Note } from '@shared/schema';
 import { format } from 'date-fns';
 
@@ -14,8 +13,10 @@ interface ArchivePanelProps {
 
 export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const { archivedNotes, loading, unarchiveNote, deleteNote } = useArchivedNotes();
-  const { projects } = useProjects();
+  const { allNotes, loading, updateNote, deleteNote } = useNotes();
+
+  // Get archived notes from the main notes hook
+  const archivedNotes = allNotes.filter(note => note.isArchived);
 
   const filteredNotes = archivedNotes.filter(note => {
     if (!searchQuery) return true;
@@ -23,14 +24,10 @@ export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
     return note.content.toLowerCase().includes(query);
   });
 
-  const getProjectName = (projectId: string) => {
-    return projects.find(p => p.id === projectId)?.name || 'Unknown Project';
-  };
-
   const handleUnarchive = async (noteId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      await unarchiveNote(noteId);
+      await updateNote(noteId, { isArchived: false });
     } catch (error) {
       console.error('Error unarchiving thought:', error);
     }
@@ -141,7 +138,6 @@ export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
                 </p>
 
                 <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span>{getProjectName(note.projectId)}</span>
                   <span>Archived {format(new Date(note.updatedAt), 'MMM dd, yyyy')}</span>
                 </div>
 
