@@ -108,7 +108,7 @@ export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-1 flex-1 mr-2">
-                    {note.content.slice(0, 50) || 'Empty thought'}
+                    {note.content.replace(/<[^>]*>/g, '').slice(0, 50) || 'Empty thought'}
                   </h3>
                   
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -134,7 +134,8 @@ export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
                 </div>
 
                 <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">
-                  {note.content.replace(/<[^>]*>/g, '').slice(0, 150)}...
+                  {note.content.replace(/<[^>]*>/g, '').trim().slice(0, 150) || 'Empty content'}
+                  {note.content.replace(/<[^>]*>/g, '').trim().length > 150 ? '...' : ''}
                 </p>
 
                 <div className="flex items-center justify-between text-xs text-gray-500">
