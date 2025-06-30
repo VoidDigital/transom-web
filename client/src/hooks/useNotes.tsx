@@ -112,7 +112,8 @@ export const useNotes = (projectId?: string) => {
             createdAt: noteData.createdAt,
             updatedAt: noteData.updatedAt,
             isArchived: noteData.isArchived,
-            tags: noteData.tags
+            tags: noteData.tags,
+            tagNames: noteData.tagNames
           });
           
           // Map iOS data structure to web app structure
@@ -123,6 +124,7 @@ export const useNotes = (projectId?: string) => {
             userId: firebaseUser.uid, // Use current user ID
             projectId: noteData.projectId || null,
             tags: noteData.tags || [],
+            tagNames: noteData.tagNames || "", // iOS uses tilde-separated tag names
             isArchived: noteData.isArchived || false,
             createdAt: noteData.createdAt ? new Date(Math.floor(noteData.createdAt) > 1e10 ? Math.floor(noteData.createdAt) : Math.floor(noteData.createdAt * 1000)) : new Date(),
             updatedAt: noteData.updatedAt ? new Date(Math.floor(noteData.updatedAt) > 1e10 ? Math.floor(noteData.updatedAt) : Math.floor(noteData.updatedAt * 1000)) : new Date(Math.floor(noteData.createdAt) > 1e10 ? Math.floor(noteData.createdAt) : Math.floor(noteData.createdAt * 1000))

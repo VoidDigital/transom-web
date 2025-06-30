@@ -67,6 +67,7 @@ export const noteSchema = z.object({
   projectId: z.string(),
   userId: z.string(),
   tags: z.array(z.string()), // Array of tag IDs
+  tagNames: z.string().optional(), // iOS tilde-separated tag names
   isArchived: z.boolean().default(false),
   createdAt: z.date(),
   updatedAt: z.date(),

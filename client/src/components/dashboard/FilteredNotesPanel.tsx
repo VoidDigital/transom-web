@@ -22,10 +22,25 @@ export default function FilteredNotesPanel({
 }: FilteredNotesPanelProps) {
   const { allNotes } = useNotes();
 
-  // Filter notes based on the selected project or tag
+  // Filter notes based on the selected project or tag using tagNames field
   const filteredNotes = allNotes
     .filter(note => !note.isArchived) // Only show non-archived notes
-    .filter(note => note.tags.includes(filterId))
+    .filter(note => {
+      // Check if the tag name exists in the tilde-separated tagNames field
+      const tagNames = note.tagNames || '';
+      const tagList = tagNames.split('~').filter(tag => tag.trim() !== '');
+      const hasTag = tagList.includes(filterName);
+      
+      console.log("🔍 Filtering note:", {
+        noteId: note.id,
+        filterName,
+        tagNames,
+        tagList,
+        hasTag
+      });
+      
+      return hasTag;
+    })
     .sort((a, b) => {
       const aTime = a.updatedAt?.getTime() || a.createdAt?.getTime() || 0;
       const bTime = b.updatedAt?.getTime() || b.createdAt?.getTime() || 0;
