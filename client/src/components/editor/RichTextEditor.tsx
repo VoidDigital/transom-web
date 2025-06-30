@@ -33,8 +33,8 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
             .replace(/style="[^"]*"/gi, '') // Remove inline styles
             .replace(/<span[^>]*>/gi, '') // Remove span opening tags
             .replace(/<\/span>/gi, '') // Remove span closing tags
-            .replace(/<p[^>]*>/gi, '<div>') // Convert p to div
-            .replace(/<\/p>/gi, '</div>'); // Convert p to div
+            .replace(/<p[^>]*>/gi, '<p>') // Clean p tags but keep them as p
+            .replace(/<\/p>/gi, '</p>'); // Keep closing p tags
         }
       }
       
