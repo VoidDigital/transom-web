@@ -70,6 +70,29 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     if (editorRef.current) {
       setIsUpdating(true);
       
+      // Save cursor position before processing
+      const selection = window.getSelection();
+      let range = null;
+      let cursorOffset = 0;
+      
+      if (selection && selection.rangeCount > 0) {
+        range = selection.getRangeAt(0);
+        // Get text offset from start of editor
+        const walker = document.createTreeWalker(
+          editorRef.current,
+          NodeFilter.SHOW_TEXT
+        );
+        
+        let node;
+        while (node = walker.nextNode()) {
+          if (node === range.startContainer) {
+            cursorOffset += range.startOffset;
+            break;
+          }
+          cursorOffset += node.textContent?.length || 0;
+        }
+      }
+      
       // Convert web HTML back to iOS-compatible format
       let webContent = editorRef.current.innerHTML;
       
@@ -82,17 +105,47 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         .replace(/<i>/gi, '<span class="s3">') // Italic to s3
         .replace(/<\/i>/gi, '</span>')
         .replace(/<u>/gi, '<span class="s2">') // Underline to s2
-        .replace(/<\/u>/gi, '</span>')
-        .replace(/^(.+)$/gm, (match) => {
-          // Wrap plain text in s1 spans if not already wrapped
-          if (!match.includes('<span') && match.trim()) {
-            return `<span class="s1">${match}</span>`;
-          }
-          return match;
-        });
+        .replace(/<\/u>/gi, '</span>');
       
       onChange(iosCompatibleContent);
-      setTimeout(() => setIsUpdating(false), 0);
+      
+      // Restore cursor position after a small delay
+      setTimeout(() => {
+        if (editorRef.current && range && selection) {
+          const walker = document.createTreeWalker(
+            editorRef.current,
+            NodeFilter.SHOW_TEXT
+          );
+          
+          let currentOffset = 0;
+          let targetNode = null;
+          let targetOffset = 0;
+          
+          let node;
+          while (node = walker.nextNode()) {
+            const nodeLength = node.textContent?.length || 0;
+            if (currentOffset + nodeLength >= cursorOffset) {
+              targetNode = node;
+              targetOffset = cursorOffset - currentOffset;
+              break;
+            }
+            currentOffset += nodeLength;
+          }
+          
+          if (targetNode) {
+            try {
+              range.setStart(targetNode, Math.min(targetOffset, targetNode.textContent?.length || 0));
+              range.setEnd(targetNode, Math.min(targetOffset, targetNode.textContent?.length || 0));
+              selection.removeAllRanges();
+              selection.addRange(range);
+            } catch (e) {
+              // If cursor restoration fails, just focus the editor
+              editorRef.current.focus();
+            }
+          }
+        }
+        setIsUpdating(false);
+      }, 0);
     }
   };
 
