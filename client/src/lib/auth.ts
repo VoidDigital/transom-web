@@ -8,7 +8,7 @@ import {
   createUserWithEmailAndPassword,
   User as FirebaseUser
 } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { ref, set, get, child } from "firebase/database";
 import { auth, db } from "./firebase";
 import { User, insertUserSchema } from "@shared/schema";
 
@@ -46,8 +46,8 @@ export const handleRedirectResult = async () => {
 };
 
 export const createOrUpdateUser = async (firebaseUser: FirebaseUser): Promise<User> => {
-  const userRef = doc(db, "users", firebaseUser.uid);
-  const userSnap = await getDoc(userRef);
+  const userRef = ref(db, `users/${firebaseUser.uid}`);
+  const userSnap = await get(userRef);
 
   const userData = {
     id: firebaseUser.uid,
@@ -60,18 +60,19 @@ export const createOrUpdateUser = async (firebaseUser: FirebaseUser): Promise<Us
 
   if (!userSnap.exists()) {
     // Create new user
-    await setDoc(userRef, {
+    await set(userRef, {
       ...userData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
   } else {
     // Update existing user
-    await setDoc(userRef, {
-      ...userSnap.data(),
+    const existingData = userSnap.val();
+    await set(userRef, {
+      ...existingData,
       ...userData,
-      updatedAt: new Date(),
-    }, { merge: true });
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   return userData;
@@ -81,18 +82,18 @@ export const getCurrentUser = async (): Promise<User | null> => {
   const firebaseUser = auth.currentUser;
   if (!firebaseUser) return null;
 
-  const userRef = doc(db, "users", firebaseUser.uid);
-  const userSnap = await getDoc(userRef);
+  const userRef = ref(db, `users/${firebaseUser.uid}`);
+  const userSnap = await get(userRef);
 
   if (userSnap.exists()) {
-    const data = userSnap.data();
+    const data = userSnap.val();
     return {
       id: data.id,
       email: data.email,
       name: data.name,
       initials: data.initials,
-      createdAt: data.createdAt?.toDate() || new Date(),
-      updatedAt: data.updatedAt?.toDate() || new Date(),
+      createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+      updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
     };
   }
 
