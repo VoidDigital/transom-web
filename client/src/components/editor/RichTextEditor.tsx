@@ -27,12 +27,8 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           const unwantedElements = bodyContent.querySelectorAll('style, script, meta');
           unwantedElements.forEach(el => el.remove());
           
-          // Get the processed HTML with basic formatting preserved
+          // Keep iOS span classes but add CSS to style them properly
           processedContent = bodyContent.innerHTML
-            .replace(/class="[^"]*"/gi, '') // Remove class attributes
-            .replace(/style="[^"]*"/gi, '') // Remove inline styles
-            .replace(/<span[^>]*>/gi, '') // Remove span opening tags
-            .replace(/<\/span>/gi, '') // Remove span closing tags
             .replace(/<p[^>]*>/gi, '<p>') // Clean p tags but keep them as p
             .replace(/<\/p>/gi, '</p>'); // Keep closing p tags
         }
@@ -127,7 +123,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         contentEditable
         onInput={handleInput}
         onKeyDown={handleKeyDown}
-        className="w-full h-full p-0 focus:outline-none [&_p]:mb-4 [&_p]:leading-relaxed [&_b]:font-bold [&_i]:italic [&_u]:underline [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-1"
+        className="w-full h-full p-0 focus:outline-none [&_p]:mb-4 [&_p]:leading-relaxed [&_b]:font-bold [&_i]:italic [&_u]:underline [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-1 [&_.s2]:underline [&_.s3]:italic [&_.s4]:font-bold"
         style={{ 
           direction: 'ltr', 
           textAlign: 'left',
