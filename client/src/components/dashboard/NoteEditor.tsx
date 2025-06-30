@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SimpleTextEditor } from "@/components/editor/SimpleTextEditor";
 import { RichTextEditor } from "@/components/editor/RichTextEditor";
-import { TipTapEditor } from "@/components/editor/TipTapEditor";
+import { WorkingTextEditor } from "@/components/editor/WorkingTextEditor";
 import { HtmlContent } from "@/components/ui/html-content";
 import { Note, UpdateNote } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
@@ -187,7 +187,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
       {/* Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 p-4 lg:p-6">
-          <TipTapEditor
+          <WorkingTextEditor
             content={content}
             onChange={handleContentChange}
           />
