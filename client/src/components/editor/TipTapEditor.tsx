@@ -142,18 +142,15 @@ function convertToTipTapFormat(iosHtml: string): string {
 function convertToIOSFormat(tipTapHtml: string): string {
   if (!tipTapHtml) return ''
 
-  // Convert standard HTML back to iOS span classes
+  // First, handle text formatting by converting elements to iOS span classes
   let iosHtml = tipTapHtml
-    .replace(/<strong>/gi, '<span class="s4">')
-    .replace(/<\/strong>/gi, '</span>')
-    .replace(/<em>/gi, '<span class="s3">')
-    .replace(/<\/em>/gi, '</span>')
-    .replace(/<u>/gi, '<span class="s2">')
-    .replace(/<\/u>/gi, '</span>')
+    .replace(/<strong>([^<]*)<\/strong>/gi, '<span class="s4">$1</span>')
+    .replace(/<em>([^<]*)<\/em>/gi, '<span class="s3">$1</span>')
+    .replace(/<u>([^<]*)<\/u>/gi, '<span class="s2">$1</span>')
 
-  // Wrap text content in s1 spans, preserving spaces and structure
-  iosHtml = iosHtml.replace(/>([^<]+)</g, (match, textContent) => {
-    if (textContent.trim()) {
+  // Wrap any remaining unformatted text in s1 spans
+  iosHtml = iosHtml.replace(/>([^<]*)</g, (match, textContent) => {
+    if (textContent && !textContent.includes('span class=')) {
       return `><span class="s1">${textContent}</span><`
     }
     return match
