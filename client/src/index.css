@@ -54,6 +54,14 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   /* Rich text editor styles */

@@ -137,14 +137,14 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
                   : "hover:bg-slate-50"
               }`}
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1 text-sm text-slate-600 line-clamp-3 mr-4">
+              <div className="flex items-start justify-between mb-3 min-w-0">
+                <div className="flex-1 text-sm text-slate-600 mr-4 min-w-0">
                   <HtmlContent 
                     content={note.content}
-                    className="line-clamp-3 [&>*]:text-sm [&>*]:text-slate-600"
+                    className="line-clamp-3 break-words overflow-hidden [&>*]:text-sm [&>*]:text-slate-600 [&>*]:break-words [&>*]:overflow-hidden"
                   />
                 </div>
-                <span className="text-xs text-slate-400 whitespace-nowrap">
+                <span className="text-xs text-slate-400 whitespace-nowrap flex-shrink-0">
                   {formatTimeAgo(note.updatedAt)}
                 </span>
               </div>

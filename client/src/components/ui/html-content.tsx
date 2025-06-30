@@ -56,8 +56,8 @@ export function HtmlContent({ content, className = "" }: HtmlContentProps) {
   // For plain text content, render as simple text
   if (!content.includes('<')) {
     return (
-      <div className={`prose prose-sm max-w-none ${className}`}>
-        <p className="whitespace-pre-wrap">{content}</p>
+      <div className={`prose prose-sm max-w-none break-words overflow-hidden ${className}`}>
+        <p className="whitespace-pre-wrap break-words">{content}</p>
       </div>
     );
   }
@@ -65,11 +65,13 @@ export function HtmlContent({ content, className = "" }: HtmlContentProps) {
   // For HTML content, render safely
   return (
     <div 
-      className={`prose prose-sm max-w-none ${className}`}
+      className={`prose prose-sm max-w-none break-words overflow-hidden ${className}`}
       dangerouslySetInnerHTML={{ __html: cleanHtml }}
       style={{
         lineHeight: '1.6',
-        color: 'inherit'
+        color: 'inherit',
+        wordBreak: 'break-word',
+        overflowWrap: 'break-word'
       }}
     />
   );

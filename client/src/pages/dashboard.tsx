@@ -67,7 +67,7 @@ export default function Dashboard() {
 
   // Desktop two-panel layout
   return (
-    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen w-full max-w-full overflow-hidden flex bg-gray-50 dark:bg-gray-900">
       {/* Left Sidebar */}
       <LeftSidebar
         currentView={currentView}
