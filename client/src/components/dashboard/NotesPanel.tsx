@@ -125,9 +125,12 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
                   {formatDistanceToNow(note.updatedAt, { addSuffix: true })}
                 </span>
               </div>
-              <p className="text-sm text-slate-600 mb-3 line-clamp-3">
-                {getPreviewText(note.content)}
-              </p>
+              <div className="text-sm text-slate-600 mb-3 line-clamp-3">
+                <HtmlContent 
+                  content={note.content}
+                  className="line-clamp-3 [&>*]:text-sm [&>*]:text-slate-600"
+                />
+              </div>
               <div className="flex flex-wrap gap-1">
                 {getTagsForNote(note).map((tag) => (
                   <Badge

@@ -12,6 +12,12 @@ export function HtmlContent({ content, className = "" }: HtmlContentProps) {
     // Check if content is HTML (starts with DOCTYPE or HTML tags)
     const isHtml = content.includes('<!DOCTYPE') || content.includes('<html>') || content.includes('<p>') || content.includes('<div>');
     
+    console.log("🎨 HtmlContent processing:", {
+      isHtml,
+      contentPreview: content.substring(0, 100) + "...",
+      contentLength: content.length
+    });
+    
     if (!isHtml) {
       // If it's plain text, return as-is
       return content;
@@ -28,10 +34,13 @@ export function HtmlContent({ content, className = "" }: HtmlContentProps) {
     cleanedContent = cleanedContent.replace(/<head[\s\S]*?<\/head>/gi, '');
     cleanedContent = cleanedContent.replace(/<\/?meta[^>]*>/gi, '');
     
-    // Extract body content if it exists
+    // Extract body content if it exists, or use all content if no body tag
     const bodyMatch = cleanedContent.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
     if (bodyMatch) {
       cleanedContent = bodyMatch[1];
+    } else {
+      // For simpler HTML, just clean up tag remnants
+      cleanedContent = cleanedContent.replace(/<\/?body[^>]*>/gi, '');
     }
     
     // Clean up iOS-specific font styling and replace with web-safe alternatives
