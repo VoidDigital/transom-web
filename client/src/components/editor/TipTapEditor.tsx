@@ -46,9 +46,10 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
     content: convertToTipTapFormat(content),
     onUpdate: ({ editor }) => {
       const html = editor.getHTML()
-      console.log('TipTap HTML:', html) // Debug log
+      console.log('🔍 TipTap Raw HTML:', html)
       const iosCompatibleHtml = convertToIOSFormat(html)
-      console.log('iOS Compatible:', iosCompatibleHtml) // Debug log
+      console.log('🔍 iOS Compatible HTML:', iosCompatibleHtml)
+      console.log('🔍 Space count in iOS HTML:', (iosCompatibleHtml.match(/ /g) || []).length)
       onChange(iosCompatibleHtml)
     },
     editorProps: {
