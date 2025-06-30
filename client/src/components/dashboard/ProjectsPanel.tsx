@@ -2,7 +2,7 @@ import { Folder } from 'lucide-react';
 import { useNotes } from '@/hooks/useNotes';
 
 interface ProjectsPanelProps {
-  onSelectProject: (projectId: string) => void;
+  onSelectProject: (projectId: string, projectName?: string) => void;
 }
 
 export default function ProjectsPanel({ onSelectProject }: ProjectsPanelProps) {
@@ -47,7 +47,7 @@ export default function ProjectsPanel({ onSelectProject }: ProjectsPanelProps) {
           projects.map((project) => (
             <button
               key={project.id}
-              onClick={() => onSelectProject(project.id)}
+              onClick={() => onSelectProject(project.id, project.name)}
               className="group w-full h-16 px-4 lg:px-6 text-left border-b border-slate-100 transition-colors duration-150 hover:bg-slate-50"
             >
               <div className="flex items-center justify-between h-full min-w-0">

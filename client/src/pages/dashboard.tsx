@@ -54,17 +54,19 @@ export default function Dashboard() {
     setSelectedNote(null);
   };
 
-  const handleSelectProject = (projectId: string) => {
+  const handleSelectProject = (projectId: string, projectName?: string) => {
     console.log("Selected project:", projectId);
     setSelectedProjectId(projectId);
     setSelectedTagId(null); // Clear tag selection
+    setSelectedFilterName(projectName || projectId);
     setCurrentView('thoughts'); // Switch to thoughts view to show filtered results
   };
 
-  const handleSelectTag = (tagId: string) => {
+  const handleSelectTag = (tagId: string, tagName?: string) => {
     console.log("Selected tag:", tagId);
     setSelectedTagId(tagId);
     setSelectedProjectId(null); // Clear project selection
+    setSelectedFilterName(tagName || tagId);
     setCurrentView('thoughts'); // Switch to thoughts view to show filtered results
   };
 
@@ -74,7 +76,15 @@ export default function Dashboard() {
     if (view !== 'thoughts') {
       setSelectedProjectId(null);
       setSelectedTagId(null);
+      setSelectedFilterName('');
     }
+  };
+
+  const handleBackFromFilter = () => {
+    setSelectedProjectId(null);
+    setSelectedTagId(null);
+    setSelectedFilterName('');
+    // Stay in thoughts view but show all thoughts
   };
 
 
@@ -105,7 +115,27 @@ export default function Dashboard() {
           />
         ) : (
           <div className="flex-1 bg-white dark:bg-gray-900">
-            {currentView === 'thoughts' && (
+            {currentView === 'thoughts' && selectedProjectId && (
+              <FilteredNotesPanel
+                onSelectNote={handleSelectNote}
+                onCreateNote={handleCreateThought}
+                filterType="project"
+                filterId={selectedProjectId}
+                filterName={selectedFilterName}
+                onBack={handleBackFromFilter}
+              />
+            )}
+            {currentView === 'thoughts' && selectedTagId && (
+              <FilteredNotesPanel
+                onSelectNote={handleSelectNote}
+                onCreateNote={handleCreateThought}
+                filterType="tag"
+                filterId={selectedTagId}
+                filterName={selectedFilterName}
+                onBack={handleBackFromFilter}
+              />
+            )}
+            {currentView === 'thoughts' && !selectedProjectId && !selectedTagId && (
               <NotesPanel
                 onSelectNote={handleSelectNote}
                 onCreateNote={handleCreateThought}

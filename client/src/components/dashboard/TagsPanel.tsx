@@ -2,7 +2,7 @@ import { Tag } from 'lucide-react';
 import { useNotes } from '@/hooks/useNotes';
 
 interface TagsPanelProps {
-  onSelectTag: (tagId: string) => void;
+  onSelectTag: (tagId: string, tagName?: string) => void;
 }
 
 export default function TagsPanel({ onSelectTag }: TagsPanelProps) {
@@ -47,7 +47,7 @@ export default function TagsPanel({ onSelectTag }: TagsPanelProps) {
           tagsWithCounts.map((tag) => (
             <button
               key={tag.id}
-              onClick={() => onSelectTag(tag.id)}
+              onClick={() => onSelectTag(tag.id, tag.name)}
               className="group w-full h-16 px-4 lg:px-6 text-left border-b border-slate-100 transition-colors duration-150 hover:bg-slate-50"
             >
               <div className="flex items-center justify-between h-full min-w-0">
