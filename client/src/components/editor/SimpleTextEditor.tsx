@@ -66,8 +66,17 @@ export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    // Store as plain text for now (will update to match iOS HTML schema later)
-    onChange(e.target.value);
+    // Convert plain text to iOS-compatible HTML format
+    const plainText = e.target.value;
+    
+    // Convert plain text to iOS format with paragraphs and s1 spans
+    const iosFormattedContent = plainText
+      .split('\n\n') // Split by double line breaks for paragraphs
+      .filter(paragraph => paragraph.trim()) // Remove empty paragraphs
+      .map(paragraph => `<p><span class="s1">${paragraph.replace(/\n/g, ' ')}</span></p>`)
+      .join('');
+    
+    onChange(iosFormattedContent);
   };
 
   const displayText = getPlainText(content);

@@ -41,7 +41,29 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
   const handleInput = () => {
     if (editorRef.current) {
       setIsUpdating(true);
-      onChange(editorRef.current.innerHTML);
+      
+      // Convert web HTML back to iOS-compatible format
+      let webContent = editorRef.current.innerHTML;
+      
+      // Convert standard HTML formatting to iOS span classes
+      const iosCompatibleContent = webContent
+        .replace(/<div>/gi, '<p>') // Convert div to p for iOS
+        .replace(/<\/div>/gi, '</p>')
+        .replace(/<b>/gi, '<span class="s4">') // Bold to s4
+        .replace(/<\/b>/gi, '</span>')
+        .replace(/<i>/gi, '<span class="s3">') // Italic to s3
+        .replace(/<\/i>/gi, '</span>')
+        .replace(/<u>/gi, '<span class="s2">') // Underline to s2
+        .replace(/<\/u>/gi, '</span>')
+        .replace(/^(.+)$/gm, (match) => {
+          // Wrap plain text in s1 spans if not already wrapped
+          if (!match.includes('<span') && match.trim()) {
+            return `<span class="s1">${match}</span>`;
+          }
+          return match;
+        });
+      
+      onChange(iosCompatibleContent);
       setTimeout(() => setIsUpdating(false), 0);
     }
   };
