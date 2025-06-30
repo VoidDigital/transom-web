@@ -31,32 +31,31 @@ function textToIOSHtml(text: string): string {
 export function WorkingTextEditor({ content, onChange }: WorkingTextEditorProps) {
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const cursorPositionRef = useRef<number>(0);
+  const isUserTypingRef = useRef(false);
 
   useEffect(() => {
-    const newText = htmlToText(content);
-    if (newText !== text) {
+    // Only update text if user is not currently typing
+    if (!isUserTypingRef.current) {
+      const newText = htmlToText(content);
       setText(newText);
-      // Restore cursor position after content update
-      setTimeout(() => {
-        if (textareaRef.current) {
-          textareaRef.current.setSelectionRange(cursorPositionRef.current, cursorPositionRef.current);
-        }
-      }, 0);
     }
-  }, [content, text]);
+  }, [content]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
-    const cursorPosition = e.target.selectionStart;
     
-    // Store cursor position
-    cursorPositionRef.current = cursorPosition;
+    // Mark that user is typing to prevent external updates
+    isUserTypingRef.current = true;
     setText(newText);
     
     // Convert to iOS HTML format and send to parent
     const iosHtml = textToIOSHtml(newText);
     onChange(iosHtml);
+    
+    // Reset typing flag after a brief delay
+    setTimeout(() => {
+      isUserTypingRef.current = false;
+    }, 100);
   };
 
   return (
