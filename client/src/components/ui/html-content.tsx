@@ -12,11 +12,7 @@ export function HtmlContent({ content, className = "" }: HtmlContentProps) {
     // Check if content is HTML (starts with DOCTYPE or HTML tags)
     const isHtml = content.includes('<!DOCTYPE') || content.includes('<html>') || content.includes('<p>') || content.includes('<div>');
     
-    console.log("🎨 HtmlContent processing:", {
-      isHtml,
-      contentPreview: content.substring(0, 100) + "...",
-      contentLength: content.length
-    });
+
     
     if (!isHtml) {
       // If it's plain text, return as-is

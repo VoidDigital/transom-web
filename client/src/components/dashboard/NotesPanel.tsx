@@ -117,19 +117,16 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
                   : "hover:bg-slate-50"
               }`}
             >
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="text-sm font-semibold text-slate-900 line-clamp-2">
-                  {getPreviewText(note.content).slice(0, 50) || "Empty thought"}
-                </h3>
-                <span className="text-xs text-slate-400 ml-2 whitespace-nowrap">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 text-sm text-slate-600 line-clamp-3 mr-4">
+                  <HtmlContent 
+                    content={note.content}
+                    className="line-clamp-3 [&>*]:text-sm [&>*]:text-slate-600"
+                  />
+                </div>
+                <span className="text-xs text-slate-400 whitespace-nowrap">
                   {formatDistanceToNow(note.updatedAt, { addSuffix: true })}
                 </span>
-              </div>
-              <div className="text-sm text-slate-600 mb-3 line-clamp-3">
-                <HtmlContent 
-                  content={note.content}
-                  className="line-clamp-3 [&>*]:text-sm [&>*]:text-slate-600"
-                />
               </div>
               <div className="flex flex-wrap gap-1">
                 {getTagsForNote(note).map((tag) => (
