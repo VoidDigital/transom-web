@@ -40,20 +40,13 @@ export const useNotes = (projectId?: string) => {
     console.log("🔍 User Email:", firebaseUser.email);
     console.log("🔍 Custom User Data:", user);
 
-    // Use Firebase Auth UID to match iOS app data structure
-    const q = query(
-      collection(db, "notes"),
-      where("userId", "==", firebaseUser.uid),
-      orderBy("updatedAt", "desc")
-    );
-
-    console.log("🔍 Querying notes with userId:", firebaseUser.uid);
+    console.log("🔍 Querying Realtime Database notes with userId:", firebaseUser.uid);
     
-    // Check for the specific note ID from iOS after config update
-    getDoc(doc(db, "notes", "OTrIhzqCu8Qewl3w921")).then((docSnap) => {
-      console.log("🔍 iOS note OTrIhzqCu8Qewl3w921 found:", docSnap.exists());
-      if (docSnap.exists()) {
-        const noteData = docSnap.data();
+    // Check for the specific note ID from iOS in Realtime Database
+    get(child(ref(db), `notes/OTrIhzqCu8Qewl3w921`)).then((snapshot) => {
+      console.log("🔍 iOS note OTrIhzqCu8Qewl3w921 found:", snapshot.exists());
+      if (snapshot.exists()) {
+        const noteData = snapshot.val();
         console.log("✅ Connected to correct Firebase project! iOS note data:", {
           userId: noteData.userId,
           content: noteData.content?.substring(0, 50),
@@ -66,41 +59,53 @@ export const useNotes = (projectId?: string) => {
           console.log("❌ Please sign out and sign in with the Google account used in your iOS app");
         }
       } else {
-        console.log("❌ Note OTrIhzqCu8Qewl3w921 not found in this Firebase project");
-        console.log("❌ Either wrong project or note doesn't exist");
+        console.log("❌ Note OTrIhzqCu8Qewl3w921 not found in Realtime Database");
+        console.log("❌ Either wrong database or note doesn't exist");
       }
-    }).catch(err => console.log("🔍 Firebase connection error:", err));
+    }).catch(err => console.log("🔍 Realtime Database connection error:", err));
 
-    const unsubscribe = onSnapshot(q, async (snapshot) => {
-      console.log("🔍 Firebase query returned", snapshot.docs.length, "notes");
+    // Listen for notes in Realtime Database
+    const notesRef = ref(db, 'notes');
+    const unsubscribe = onValue(notesRef, async (snapshot) => {
+      if (!snapshot.exists()) {
+        console.log("🔍 No notes found in Realtime Database");
+        setNotes([]);
+        setAllNotes([]);
+        setLoading(false);
+        return;
+      }
+
+      const allNotesData = snapshot.val();
+      console.log("🔍 Realtime Database returned", Object.keys(allNotesData).length, "total notes");
       
-      const notesData = snapshot.docs.map(doc => {
-        const data = doc.data();
-        console.log("🔍 Full Note data:", {
-          id: doc.id,
-          userId: data.userId,
-          content: data.content?.substring(0, 50) + "...",
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt,
-          isArchived: data.isArchived,
-          isDeleted: data.isDeleted,
-          projectId: data.projectId,
-          tags: data.tags,
-          title: data.title
+      // Filter notes for current user
+      const userNotes = Object.entries(allNotesData)
+        .filter(([_, noteData]: [string, any]) => noteData.userId === firebaseUser.uid)
+        .map(([noteId, noteData]: [string, any]) => {
+          console.log("🔍 Full Note data:", {
+            id: noteId,
+            userId: noteData.userId,
+            content: noteData.content?.substring(0, 50) + "...",
+            createdAt: noteData.createdAt,
+            updatedAt: noteData.updatedAt,
+            isArchived: noteData.isArchived,
+            projectId: noteData.projectId,
+            tags: noteData.tags,
+            title: noteData.title
+          });
+          
+          return {
+            id: noteId,
+            ...noteData,
+            createdAt: noteData.createdAt ? new Date(noteData.createdAt) : new Date(),
+            updatedAt: noteData.updatedAt ? new Date(noteData.updatedAt) : new Date(),
+          } as Note;
         });
-        
-        return {
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-        } as Note;
-      });
 
       // Check for notes that need text migration (run in background)
-      const migrationPromises = notesData
-        .filter(note => isTextReversed(note.content))
-        .map(async (note) => {
+      const migrationPromises = userNotes
+        .filter((note: Note) => isTextReversed(note.content))
+        .map(async (note: Note) => {
           console.log("🔧 Auto-migrating reversed text for note:", note.id);
           try {
             await migrateNoteContent(note.id, note.content);
@@ -118,24 +123,23 @@ export const useNotes = (projectId?: string) => {
       }
       
       // Store all notes for comprehensive access
-      setAllNotes(notesData);
+      setAllNotes(userNotes);
       
-      console.log("🔍 Total notes before filtering:", notesData.length);
-      console.log("🔍 Archived notes:", notesData.filter(note => note.isArchived).length);
+      console.log("🔍 Total notes before filtering:", userNotes.length);
+      console.log("🔍 Archived notes:", userNotes.filter((note: Note) => note.isArchived).length);
       
-      // Filter client-side to avoid composite index requirements
-      let filteredNotes = notesData.filter(note => !note.isArchived && !note.isDeleted);
+      // Filter client-side
+      let filteredNotes = userNotes.filter((note: Note) => !note.isArchived);
       
-      console.log("🔍 Notes after archive/delete filter:", filteredNotes.length);
+      console.log("🔍 Notes after archive filter:", filteredNotes.length);
       console.log("🔍 Filtering details:", {
-        total: notesData.length,
-        archived: notesData.filter(n => n.isArchived).length,
-        deleted: notesData.filter(n => n.isDeleted).length,
+        total: userNotes.length,
+        archived: userNotes.filter((n: Note) => n.isArchived).length,
         visible: filteredNotes.length
       });
       
       if (projectId) {
-        filteredNotes = filteredNotes.filter(note => note.projectId === projectId);
+        filteredNotes = filteredNotes.filter((note: Note) => note.projectId === projectId);
       }
       
       setNotes(filteredNotes);
@@ -146,33 +150,33 @@ export const useNotes = (projectId?: string) => {
   }, [user, firebaseUser, projectId]);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !firebaseUser) {
       setTags([]);
       return;
     }
 
-    const q = query(
-      collection(db, "tags"),
-      where("userId", "==", user.id),
-      orderBy("name")
-    );
+    const tagsRef = ref(db, 'tags');
+    const unsubscribe = onValue(tagsRef, (snapshot) => {
+      if (!snapshot.exists()) {
+        setTags([]);
+        return;
+      }
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const tagsData = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-        } as Tag;
-      });
+      const allTagsData = snapshot.val();
+      const userTags = Object.entries(allTagsData)
+        .filter(([_, tagData]: [string, any]) => tagData.userId === firebaseUser.uid)
+        .map(([tagId, tagData]: [string, any]) => ({
+          id: tagId,
+          ...tagData,
+          createdAt: tagData.createdAt ? new Date(tagData.createdAt) : new Date(),
+          updatedAt: tagData.updatedAt ? new Date(tagData.updatedAt) : new Date(),
+        } as Tag));
       
-      setTags(tagsData);
+      setTags(userTags);
     });
 
     return unsubscribe;
-  }, [user]);
+  }, [user, firebaseUser]);
 
   const filteredNotes = notes.filter(note => {
     // Search filter
@@ -187,19 +191,24 @@ export const useNotes = (projectId?: string) => {
   });
 
   const createNote = async (noteData: InsertNote): Promise<Note> => {
-    if (!user) throw new Error("User not authenticated");
+    if (!user || !firebaseUser) throw new Error("User not authenticated");
 
-    const docRef = await addDoc(collection(db, "notes"), {
+    const notesRef = ref(db, 'notes');
+    const newNoteRef = push(notesRef);
+    
+    const noteToSave = {
       ...noteData,
-      userId: user.id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+      userId: firebaseUser.uid,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    await update(newNoteRef, noteToSave);
 
     const newNote: Note = {
-      id: docRef.id,
+      id: newNoteRef.key!,
       ...noteData,
-      userId: user.id,
+      userId: firebaseUser.uid,
       isArchived: false,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -209,15 +218,16 @@ export const useNotes = (projectId?: string) => {
   };
 
   const updateNote = async (noteId: string, updates: UpdateNote) => {
-    const noteRef = doc(db, "notes", noteId);
-    await updateDoc(noteRef, {
+    const noteRef = ref(db, `notes/${noteId}`);
+    await update(noteRef, {
       ...updates,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     });
   };
 
   const deleteNote = async (noteId: string) => {
-    await deleteDoc(doc(db, "notes", noteId));
+    const noteRef = ref(db, `notes/${noteId}`);
+    await remove(noteRef);
     
     if (selectedNote?.id === noteId) {
       setSelectedNote(null);
@@ -225,23 +235,29 @@ export const useNotes = (projectId?: string) => {
   };
 
   const createTag = async (tagName: string): Promise<Tag> => {
-    if (!user) throw new Error("User not authenticated");
+    if (!user || !firebaseUser) throw new Error("User not authenticated");
 
     // Check if tag already exists
     const existingTag = tags.find(tag => tag.name.toLowerCase() === tagName.toLowerCase());
     if (existingTag) return existingTag;
 
-    const docRef = await addDoc(collection(db, "tags"), {
+    const tagsRef = ref(db, 'tags');
+    const newTagRef = push(tagsRef);
+    
+    const tagToSave = {
       name: tagName,
-      userId: user.id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+      userId: firebaseUser.uid,
+      isPiece: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    await update(newTagRef, tagToSave);
 
     const newTag: Tag = {
-      id: docRef.id,
+      id: newTagRef.key!,
       name: tagName,
-      userId: user.id,
+      userId: firebaseUser.uid,
       isPiece: false,
       createdAt: new Date(),
       updatedAt: new Date(),
