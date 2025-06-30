@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Archive, Trash2, RotateCcw, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { HtmlContent } from '@/components/ui/html-content';
 import { useNotes } from '@/hooks/useNotes';
 import { Note } from '@shared/schema';
@@ -30,42 +29,43 @@ export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
     try {
       await updateNote(noteId, { isArchived: false });
     } catch (error) {
-      console.error('Error unarchiving thought:', error);
+      console.error('Error unarchiving note:', error);
     }
   };
 
   const handleDelete = async (noteId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm('Permanently delete this thought? This action cannot be undone.')) {
-      try {
-        await deleteNote(noteId);
-      } catch (error) {
-        console.error('Error deleting thought:', error);
-      }
+    if (!confirm('Are you sure you want to permanently delete this thought?')) {
+      return;
+    }
+    try {
+      await deleteNote(noteId);
+    } catch (error) {
+      console.error('Error deleting note:', error);
     }
   };
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <Archive className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          <p className="text-gray-500">Loading archived thoughts...</p>
+      <div className="w-full lg:w-96 border-r border-slate-200 flex flex-col h-full">
+        <div className="p-4 lg:p-6 border-b border-slate-200">
+          <h2 className="text-lg font-semibold text-slate-900">Archive</h2>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-slate-500">Loading archived thoughts...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="w-full lg:w-96 border-r border-slate-200 flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center gap-2 mb-4">
-          <Archive className="h-5 w-5 text-gray-500" />
-          <h2 className="text-lg font-semibold">Archived Thoughts</h2>
-          <Badge variant="secondary" className="ml-auto">
-            {archivedNotes.length}
-          </Badge>
+      <div className="p-4 lg:p-6 border-b border-slate-200">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">Archive</h2>
+          </div>
         </div>
 
         {/* Search */}
@@ -101,72 +101,49 @@ export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200 dark:divide-gray-800">
-            {filteredNotes.map(note => (
-              <div
-                key={note.id}
-                className="p-4 hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer transition-colors group"
-                onClick={() => onSelectNote(note)}
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-medium text-gray-900 dark:text-gray-100 line-clamp-1 flex-1 mr-2">
+          filteredNotes.map((note) => (
+            <button
+              key={note.id}
+              onClick={() => onSelectNote(note)}
+              className="group w-full h-20 px-4 lg:px-6 text-left border-b border-slate-100 transition-colors duration-150 hover:bg-slate-50"
+            >
+              <div className="flex items-center justify-between h-full min-w-0">
+                <div className="flex-1 text-sm text-slate-600 mr-4 min-w-0 flex items-center">
+                  <div className="w-full line-clamp-3 break-words leading-relaxed">
                     <HtmlContent 
-                      content={note.content.slice(0, 50) || 'Empty thought'} 
-                      className="inline" 
+                      content={note.content.trim()}
+                      className="[&>*]:text-sm [&>*]:text-slate-600 [&>*]:break-words [&>*]:leading-relaxed [&>*]:m-0"
                     />
-                  </h3>
-                  
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="text-xs text-slate-400 whitespace-nowrap">
+                    {format(new Date(note.updatedAt), 'MMM dd')}
+                  </span>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={(e) => handleUnarchive(note.id, e)}
-                      className="h-8 w-8 p-0"
+                      className="h-6 w-6 p-0"
                       title="Unarchive thought"
                     >
-                      <RotateCcw className="h-4 w-4" />
+                      <RotateCcw className="h-3 w-3" />
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={(e) => handleDelete(note.id, e)}
-                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                       title="Delete permanently"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
-
-                <div className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">
-                  <HtmlContent 
-                    content={note.content.slice(0, 150) || 'Empty content'} 
-                    className="text-sm" 
-                  />
-                  {note.content.length > 150 ? '...' : ''}
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span>Archived {format(new Date(note.updatedAt), 'MMM dd, yyyy')}</span>
-                </div>
-
-                {note.tags && note.tags.length > 0 && (
-                  <div className="flex gap-1 mt-2">
-                    {note.tags.slice(0, 3).map((tagId, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {tagId}
-                      </Badge>
-                    ))}
-                    {note.tags.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{note.tags.length - 3}
-                      </Badge>
-                    )}
-                  </div>
-                )}
               </div>
-            ))}
-          </div>
+            </button>
+          ))
         )}
       </div>
     </div>
