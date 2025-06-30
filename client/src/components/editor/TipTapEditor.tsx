@@ -21,9 +21,8 @@ const SpaceHandler = Extension.create({
     return {
       'Space': () => {
         console.log('🚀 SPACE HANDLER TRIGGERED')
-        const result = this.editor.commands.insertContent(' ')
-        console.log('🚀 Space insert result:', result)
-        return result
+        // Let the default space behavior happen - return false to not override
+        return false
       },
     }
   },
