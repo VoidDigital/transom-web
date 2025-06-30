@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SimpleTextEditor } from "@/components/editor/SimpleTextEditor";
+import { HtmlContent } from "@/components/ui/html-content";
 import { Note, UpdateNote } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowLeft, Share, Trash2, Cloud, Plus, X, Folder, Tag } from "lucide-react";

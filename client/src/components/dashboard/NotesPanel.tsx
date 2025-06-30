@@ -3,6 +3,7 @@ import { useNotes } from "@/hooks/useNotes";
 import { useProjects } from "@/hooks/useProjects";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { HtmlContent } from "@/components/ui/html-content";
 import { Note } from "@shared/schema";
 import { ArrowUpDown, Filter, X } from "lucide-react";
 
@@ -23,7 +24,7 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
   } = useNotes(); // Remove project filtering to show all thoughts
 
   const getPreviewText = (content: string) => {
-    // Strip HTML tags and get first 150 characters
+    // For HTML content, extract plain text for preview
     const text = content.replace(/<[^>]*>/g, '');
     return text.length > 150 ? text.substring(0, 150) + '...' : text;
   };
