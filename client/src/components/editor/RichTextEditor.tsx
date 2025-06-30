@@ -35,8 +35,36 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       }
       
       editorRef.current.innerHTML = processedContent;
+      
+      // Force LTR direction after content update
+      editorRef.current.style.direction = 'ltr';
+      editorRef.current.style.textAlign = 'left';
     }
   }, [content, isUpdating]);
+
+  // Simple direction enforcement
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (editor) {
+      const enforceDirection = () => {
+        editor.style.direction = 'ltr';
+        editor.style.textAlign = 'left';
+      };
+      
+      editor.addEventListener('input', enforceDirection);
+      editor.addEventListener('keydown', enforceDirection);
+      editor.addEventListener('focus', enforceDirection);
+      
+      // Set initial direction
+      enforceDirection();
+      
+      return () => {
+        editor.removeEventListener('input', enforceDirection);
+        editor.removeEventListener('keydown', enforceDirection);
+        editor.removeEventListener('focus', enforceDirection);
+      };
+    }
+  }, []);
 
   const handleInput = () => {
     if (editorRef.current) {
