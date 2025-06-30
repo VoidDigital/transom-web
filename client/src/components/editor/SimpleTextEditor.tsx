@@ -16,10 +16,17 @@ export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
     if (htmlContent.includes('<!DOCTYPE html') || htmlContent.includes('<body>')) {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = htmlContent;
-      const bodyContent = tempDiv.querySelector('body') || tempDiv;
-      const plainText = bodyContent.textContent || bodyContent.innerText || '';
-      console.log('🔍 SimpleTextEditor - Extracted from complex HTML:', plainText);
-      return plainText;
+      const bodyContent = tempDiv.querySelector('body');
+      
+      if (bodyContent) {
+        // Remove style elements and script elements from body content
+        const styleElements = bodyContent.querySelectorAll('style, script');
+        styleElements.forEach(el => el.remove());
+        
+        const plainText = bodyContent.textContent || bodyContent.innerText || '';
+        console.log('🔍 SimpleTextEditor - Extracted from complex HTML:', plainText);
+        return plainText.trim();
+      }
     }
     
     // For simple HTML, strip tags
@@ -27,7 +34,7 @@ export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
     tempDiv.innerHTML = htmlContent;
     const plainText = tempDiv.textContent || tempDiv.innerText || '';
     console.log('🔍 SimpleTextEditor - Extracted from simple HTML:', plainText);
-    return plainText;
+    return plainText.trim();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -42,10 +49,14 @@ export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
     <textarea
       value={displayText}
       onChange={handleChange}
-      className="w-full min-h-[200px] p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+      className="w-full h-full resize-none focus:outline-none"
       style={{ 
         direction: 'ltr', 
-        textAlign: 'left'
+        textAlign: 'left',
+        border: 'none',
+        padding: 0,
+        margin: 0,
+        background: 'transparent'
       }}
       dir="ltr"
       placeholder="Start writing your thought..."
