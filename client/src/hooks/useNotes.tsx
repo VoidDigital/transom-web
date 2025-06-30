@@ -61,8 +61,15 @@ export const useNotes = (projectId?: string) => {
           content: noteData.content?.substring(0, 50),
           createdAt: noteData.createdAt
         });
+        console.log("🔍 Current web user ID:", firebaseUser.uid);
+        console.log("🔍 iOS note belongs to user ID:", noteData.userId);
+        if (noteData.userId !== firebaseUser.uid) {
+          console.log("❌ ACCOUNT MISMATCH: Web app signed in with different Google account than iOS!");
+          console.log("❌ Please sign out and sign in with the Google account used in your iOS app");
+        }
       } else {
-        console.log("❌ Note still not found - may need to sign in with correct account");
+        console.log("❌ Note OTrIhzqCu8Qewl3w921 not found in this Firebase project");
+        console.log("❌ Either wrong project or note doesn't exist");
       }
     }).catch(err => console.log("🔍 Firebase connection error:", err));
 
