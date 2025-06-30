@@ -76,7 +76,7 @@ export default function Dashboard() {
       />
       
       {/* Right Panel */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex ml-64">
         {showEditor && selectedNote ? (
           <NoteEditor
             note={selectedNote}
