@@ -8,6 +8,8 @@ interface SimpleTextEditorProps {
 export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
   // Extract plain text from HTML content (from iOS app)
   const getPlainText = (htmlContent: string) => {
+    console.log('🔍 SimpleTextEditor - Input content:', htmlContent);
+    
     if (!htmlContent) return '';
     
     // If it's complex HTML from iOS, extract text content
@@ -15,13 +17,17 @@ export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = htmlContent;
       const bodyContent = tempDiv.querySelector('body') || tempDiv;
-      return bodyContent.textContent || bodyContent.innerText || '';
+      const plainText = bodyContent.textContent || bodyContent.innerText || '';
+      console.log('🔍 SimpleTextEditor - Extracted from complex HTML:', plainText);
+      return plainText;
     }
     
     // For simple HTML, strip tags
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
-    return tempDiv.textContent || tempDiv.innerText || '';
+    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+    console.log('🔍 SimpleTextEditor - Extracted from simple HTML:', plainText);
+    return plainText;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -29,9 +35,12 @@ export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
     onChange(e.target.value);
   };
 
+  const displayText = getPlainText(content);
+  console.log('🔍 SimpleTextEditor - Final display text:', displayText);
+
   return (
     <textarea
-      value={getPlainText(content)}
+      value={displayText}
       onChange={handleChange}
       className="w-full min-h-[200px] p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
       style={{ 
