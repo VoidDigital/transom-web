@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SimpleTextEditor } from "@/components/editor/SimpleTextEditor";
+import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import { HtmlContent } from "@/components/ui/html-content";
 import { Note, UpdateNote } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
@@ -32,6 +33,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   const [newTag, setNewTag] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [useRichText, setUseRichText] = useState(true); // Toggle for testing
 
   useEffect(() => {
     if (note) {
@@ -164,6 +166,14 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
               <span>Saving...</span>
             </div>
           )}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setUseRichText(!useRichText)}
+            className="text-xs"
+          >
+            {useRichText ? "Plain" : "Rich"}
+          </Button>
           <Button variant="ghost" size="sm">
             <Share className="w-4 h-4" />
           </Button>
@@ -176,10 +186,17 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
       {/* Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 p-4 lg:p-6">
-          <SimpleTextEditor
-            content={content}
-            onChange={handleContentChange}
-          />
+          {useRichText ? (
+            <RichTextEditor
+              content={content}
+              onChange={handleContentChange}
+            />
+          ) : (
+            <SimpleTextEditor
+              content={content}
+              onChange={handleContentChange}
+            />
+          )}
         </div>
 
         {/* Tags Section */}
