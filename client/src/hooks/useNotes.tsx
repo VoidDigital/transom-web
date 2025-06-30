@@ -68,9 +68,9 @@ export const useNotes = (projectId?: string) => {
     const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
     console.log("🔍 Using email key for data path:", emailKey);
     
-    // Listen for notes in Realtime Database using email-based path
-    const notesRef = ref(db, `${emailKey}/notes`);
-    const unsubscribe = onValue(notesRef, async (snapshot) => {
+    // Listen for thoughts in Realtime Database using email-based path (matching iOS app)
+    const thoughtsRef = ref(db, `${emailKey}/thoughts`);
+    const unsubscribe = onValue(thoughtsRef, async (snapshot) => {
       if (!snapshot.exists()) {
         console.log("🔍 No notes found in Realtime Database");
         setNotes([]);
