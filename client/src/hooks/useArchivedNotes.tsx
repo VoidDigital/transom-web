@@ -1,14 +1,10 @@
 import { useState, useEffect } from "react";
 import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
-  onSnapshot, 
-  updateDoc, 
-  deleteDoc, 
-  doc
-} from "firebase/firestore";
+  ref, 
+  onValue, 
+  set, 
+  remove
+} from "firebase/database";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./useAuth";
 import { Note, UpdateNote } from "@shared/schema";
@@ -25,25 +21,27 @@ export const useArchivedNotes = (projectId?: string) => {
       return;
     }
 
-    // Use Firebase Auth UID to match iOS app data structure
-    const q = query(
-      collection(db, "notes"),
-      where("userId", "==", firebaseUser.uid),
-      orderBy("updatedAt", "desc")
-    );
+    // Use email-based path matching iOS app format
+    const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
+    const notesRef = ref(db, `${emailKey}/notes`);
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const allNotesData = snapshot.docs.map(doc => {
-        const data = doc.data();
+    const unsubscribe = onValue(notesRef, (snapshot) => {
+      if (!snapshot.exists()) {
+        setArchivedNotes([]);
+        setLoading(false);
+        return;
+      }
+
+      const allNotesData = Object.entries(snapshot.val() || {}).map(([noteId, data]: [string, any]) => {
         return {
-          id: doc.id,
+          id: noteId,
           content: data.content,
           projectId: data.projectId,
           userId: data.userId,
           tags: data.tags || [],
           isArchived: data.isArchived ?? false,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
+          createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+          updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
         } as Note;
       });
 
@@ -62,10 +60,13 @@ export const useArchivedNotes = (projectId?: string) => {
   }, [user, firebaseUser, projectId]);
 
   const updateNote = async (noteId: string, updates: UpdateNote) => {
-    const noteRef = doc(db, "notes", noteId);
-    await updateDoc(noteRef, {
+    if (!user || !firebaseUser) throw new Error("User not authenticated");
+    
+    const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
+    const noteRef = ref(db, `${emailKey}/notes/${noteId}`);
+    await set(noteRef, {
       ...updates,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     });
   };
 
@@ -74,7 +75,10 @@ export const useArchivedNotes = (projectId?: string) => {
   };
 
   const deleteNote = async (noteId: string) => {
-    await deleteDoc(doc(db, "notes", noteId));
+    if (!user || !firebaseUser) throw new Error("User not authenticated");
+    
+    const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
+    await remove(ref(db, `${emailKey}/notes/${noteId}`));
   };
 
   return {

@@ -1,4 +1,4 @@
-import { doc, updateDoc } from "firebase/firestore";
+import { ref, set } from "firebase/database";
 import { db } from "@/lib/firebase";
 
 // Function to detect if text appears to be reversed due to RTL issues
@@ -41,7 +41,7 @@ export function reverseText(text: string): string {
 }
 
 // Function to migrate a single note's content
-export async function migrateNoteContent(noteId: string, currentContent: string): Promise<void> {
+export async function migrateNoteContent(noteId: string, currentContent: string, userEmail: string): Promise<void> {
   if (!isTextReversed(currentContent)) {
     console.log(`Note ${noteId} does not need migration`);
     return;
@@ -50,9 +50,11 @@ export async function migrateNoteContent(noteId: string, currentContent: string)
   const correctedContent = reverseText(currentContent);
   
   try {
-    await updateDoc(doc(db, "notes", noteId), {
+    const emailKey = userEmail.replace(/\./g, '▦');
+    const noteRef = ref(db, `${emailKey}/notes/${noteId}`);
+    await set(noteRef, {
       content: correctedContent,
-      updatedAt: new Date()
+      updatedAt: new Date().toISOString()
     });
     
     console.log(`Successfully migrated note ${noteId}`);
