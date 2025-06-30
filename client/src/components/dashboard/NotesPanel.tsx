@@ -142,7 +142,7 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
             >
               <div className="flex items-center justify-between h-full min-w-0">
                 <div className="flex-1 text-sm text-slate-600 mr-4 min-w-0 flex items-center">
-                  <div className="relative w-full h-[65px] overflow-hidden break-words leading-relaxed flex items-center">
+                  <div className="relative w-full h-[65px] overflow-hidden break-words leading-relaxed">
                     <div className="w-full">
                       <HtmlContent 
                         content={note.content.trim()}
