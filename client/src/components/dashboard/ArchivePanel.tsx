@@ -79,7 +79,8 @@ export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
         </div>
 
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-          {filteredNotes.length} {filteredNotes.length === 1 ? 'thought' : 'thoughts'} archived
+          {archivedNotes.length} {archivedNotes.length === 1 ? 'thought' : 'thoughts'} archived
+          {searchQuery && ` (${filteredNotes.length} shown)`}
         </p>
       </div>
 
