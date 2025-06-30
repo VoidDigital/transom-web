@@ -1,17 +1,12 @@
 import { useState, useEffect } from "react";
 import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
-  onSnapshot, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  doc,
-  writeBatch,
-  getDocs
-} from "firebase/firestore";
+  ref, 
+  onValue, 
+  push, 
+  set, 
+  remove,
+  get
+} from "firebase/database";
 import { db } from "@/lib/firebase";
 import { useAuth } from "./useAuth";
 import { Project, InsertProject } from "@shared/schema";
@@ -29,20 +24,23 @@ export const useProjects = () => {
       return;
     }
 
-    const q = query(
-      collection(db, "projects"),
-      where("userId", "==", user.id),
-      orderBy("updatedAt", "desc")
-    );
+    // Use email-based path matching iOS app format
+    const emailKey = user.email.replace(/\./g, '▦');
+    const projectsRef = ref(db, `${emailKey}/projects`);
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const projectsData = snapshot.docs.map(doc => {
-        const data = doc.data();
+    const unsubscribe = onValue(projectsRef, (snapshot) => {
+      if (!snapshot.exists()) {
+        setProjects([]);
+        setLoading(false);
+        return;
+      }
+
+      const projectsData = Object.entries(snapshot.val() || {}).map(([projectId, data]: [string, any]) => {
         return {
-          id: doc.id,
+          id: projectId,
           ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
+          createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+          updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
         } as Project;
       });
       
@@ -62,16 +60,12 @@ export const useProjects = () => {
   const createProject = async (projectData: InsertProject): Promise<Project> => {
     if (!user) throw new Error("User not authenticated");
 
-    const docRef = await addDoc(collection(db, "projects"), {
-      ...projectData,
-      userId: user.id,
-      noteCount: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    const emailKey = user.email.replace(/\./g, '▦');
+    const projectsRef = ref(db, `${emailKey}/projects`);
+    const newProjectRef = push(projectsRef);
 
     const newProject: Project = {
-      id: docRef.id,
+      id: newProjectRef.key!,
       ...projectData,
       userId: user.id,
       noteCount: 0,
@@ -79,35 +73,49 @@ export const useProjects = () => {
       updatedAt: new Date(),
     };
 
+    await set(newProjectRef, {
+      ...newProject,
+      createdAt: newProject.createdAt.toISOString(),
+      updatedAt: newProject.updatedAt.toISOString(),
+    });
+
     return newProject;
   };
 
   const updateProject = async (projectId: string, updates: Partial<InsertProject>) => {
-    const projectRef = doc(db, "projects", projectId);
-    await updateDoc(projectRef, {
+    if (!user) throw new Error("User not authenticated");
+    
+    const emailKey = user.email.replace(/\./g, '▦');
+    const projectRef = ref(db, `${emailKey}/projects/${projectId}`);
+    await set(projectRef, {
       ...updates,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     });
   };
 
   const deleteProject = async (projectId: string) => {
+    if (!user) throw new Error("User not authenticated");
+    
+    const emailKey = user.email.replace(/\./g, '▦');
+    
     // Delete all notes in the project first
-    const notesQuery = query(
-      collection(db, "notes"),
-      where("projectId", "==", projectId)
-    );
+    const notesRef = ref(db, `${emailKey}/notes`);
+    const notesSnapshot = await get(notesRef);
     
-    const notesSnapshot = await getDocs(notesQuery);
-    const batch = writeBatch(db);
-    
-    notesSnapshot.docs.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
+    if (notesSnapshot.exists()) {
+      const notesData = notesSnapshot.val();
+      const projectNotes = Object.entries(notesData).filter(([_, noteData]: [string, any]) => 
+        noteData.projectId === projectId
+      );
+      
+      // Delete each note
+      for (const [noteId] of projectNotes) {
+        await remove(ref(db, `${emailKey}/notes/${noteId}`));
+      }
+    }
     
     // Delete the project
-    batch.delete(doc(db, "projects", projectId));
-    
-    await batch.commit();
+    await remove(ref(db, `${emailKey}/projects/${projectId}`));
     
     // Clear selected project if it was deleted
     if (selectedProject?.id === projectId) {
@@ -116,8 +124,11 @@ export const useProjects = () => {
   };
 
   const updateProjectNoteCount = async (projectId: string, noteCount: number) => {
-    const projectRef = doc(db, "projects", projectId);
-    await updateDoc(projectRef, { noteCount });
+    if (!user) throw new Error("User not authenticated");
+    
+    const emailKey = user.email.replace(/\./g, '▦');
+    const projectRef = ref(db, `${emailKey}/projects/${projectId}`);
+    await set(projectRef, { noteCount });
   };
 
   return {
