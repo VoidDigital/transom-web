@@ -35,15 +35,18 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
     const diffMinutes = Math.floor(diffMs / (1000 * 60));
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffYears = Math.floor(diffDays / 365);
 
     if (diffMinutes < 1) {
       return "just now";
     } else if (diffMinutes < 60) {
-      return diffMinutes === 1 ? "1 minute ago" : `${diffMinutes} minutes ago`;
+      return `${diffMinutes}m ago`;
     } else if (diffHours < 24) {
-      return diffHours === 1 ? "1 hour ago" : `${diffHours} hours ago`;
+      return `${diffHours}h ago`;
+    } else if (diffDays < 365) {
+      return `${diffDays}d ago`;
     } else {
-      return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
+      return `${diffYears}y ago`;
     }
   };
 
