@@ -41,7 +41,7 @@ export default function LoginPage() {
   const signInForm = useForm<SignInForm>({
     resolver: zodResolver(signInSchema),
     mode: "onBlur",
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "chris.steib+replit@gmail.com", password: "nocode" },
   });
 
   const signUpForm = useForm<SignUpForm>({
