@@ -29,17 +29,7 @@ export default function FilteredNotesPanel({
       // Check if the tag name exists in the tilde-separated tagNames field
       const tagNames = note.tagNames || '';
       const tagList = tagNames.split('~').filter(tag => tag.trim() !== '');
-      const hasTag = tagList.includes(filterName);
-      
-      console.log("🔍 Filtering note:", {
-        noteId: note.id,
-        filterName,
-        tagNames,
-        tagList,
-        hasTag
-      });
-      
-      return hasTag;
+      return tagList.includes(filterName);
     })
     .sort((a, b) => {
       const aTime = a.updatedAt?.getTime() || a.createdAt?.getTime() || 0;

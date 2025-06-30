@@ -7,9 +7,11 @@ interface LeftSidebarProps {
   currentView: 'thoughts' | 'projects' | 'tags' | 'archive' | 'preferences';
   onViewChange: (view: 'thoughts' | 'projects' | 'tags' | 'archive' | 'preferences') => void;
   onCreateThought: () => void;
+  selectedProjectId?: string | null;
+  selectedTagId?: string | null;
 }
 
-export default function LeftSidebar({ currentView, onViewChange, onCreateThought }: LeftSidebarProps) {
+export default function LeftSidebar({ currentView, onViewChange, onCreateThought, selectedProjectId, selectedTagId }: LeftSidebarProps) {
   const { user, signOut } = useAuth();
   const { allNotes, tags } = useNotes();
 
@@ -78,7 +80,20 @@ export default function LeftSidebar({ currentView, onViewChange, onCreateThought
         <div className="space-y-2">
           {navigationItems.map((item) => {
             const Icon = item.icon;
-            const isActive = currentView === item.id;
+            
+            // Determine if this item should be highlighted
+            let isActive = currentView === item.id;
+            
+            // Override highlighting for filtered views
+            if (currentView === 'thoughts') {
+              if (selectedProjectId && item.id === 'projects') {
+                isActive = true; // Highlight Projects when filtering by project
+              } else if (selectedTagId && item.id === 'tags') {
+                isActive = true; // Highlight Tags when filtering by tag
+              } else if ((selectedProjectId || selectedTagId) && item.id === 'thoughts') {
+                isActive = false; // Don't highlight Thoughts when filtering
+              }
+            }
             
             return (
               <button

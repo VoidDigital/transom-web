@@ -104,6 +104,8 @@ export default function Dashboard() {
         currentView={currentView}
         onViewChange={handleViewChange}
         onCreateThought={handleCreateThought}
+        selectedProjectId={selectedProjectId}
+        selectedTagId={selectedTagId}
       />
       
       {/* Right Panel */}
