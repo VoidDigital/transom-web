@@ -21,27 +21,44 @@ export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
         const unwantedElements = bodyContent.querySelectorAll('style, script, meta');
         unwantedElements.forEach(el => el.remove());
         
-        // Get only the text content from paragraphs and spans
-        const textElements = bodyContent.querySelectorAll('p, span, div');
+        // Process text content while preserving paragraph structure
+        const paragraphs = bodyContent.querySelectorAll('p');
         let plainText = '';
         
-        textElements.forEach(el => {
-          const text = el.textContent || '';
-          if (text.trim() && !text.includes('{') && !text.includes('margin:')) {
-            plainText += text.trim() + '\n';
+        paragraphs.forEach((p, index) => {
+          const text = p.textContent || p.innerText || '';
+          if (text.trim() && !text.includes('{') && !text.includes('margin:') && !text.includes('font:')) {
+            plainText += text.trim();
+            // Add line break between paragraphs, but not after the last one
+            if (index < paragraphs.length - 1) {
+              plainText += '\n\n';
+            }
           }
         });
         
-        // Fallback to full body text if no specific elements found
+        // Fallback: if no paragraphs found, get all text content
         if (!plainText.trim()) {
-          plainText = bodyContent.textContent || bodyContent.innerText || '';
+          const allText = bodyContent.textContent || bodyContent.innerText || '';
+          // Filter out CSS rules
+          const lines = allText.split('\n');
+          plainText = lines
+            .filter(line => {
+              const trimmed = line.trim();
+              return trimmed && 
+                     !trimmed.includes('{') && 
+                     !trimmed.includes('margin:') && 
+                     !trimmed.includes('font:') &&
+                     !trimmed.includes('color:') &&
+                     !trimmed.includes('font-family:');
+            })
+            .join('\n');
         }
         
         return plainText.trim();
       }
     }
     
-    // For simple HTML, strip tags
+    // For simple HTML, strip tags but preserve text flow
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
     const plainText = tempDiv.textContent || tempDiv.innerText || '';
@@ -54,7 +71,6 @@ export function SimpleTextEditor({ content, onChange }: SimpleTextEditorProps) {
   };
 
   const displayText = getPlainText(content);
-  console.log('🔍 SimpleTextEditor - Final display text:', displayText);
 
   return (
     <textarea
