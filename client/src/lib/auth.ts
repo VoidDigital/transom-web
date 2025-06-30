@@ -46,59 +46,94 @@ export const handleRedirectResult = async () => {
 };
 
 export const createOrUpdateUser = async (firebaseUser: FirebaseUser): Promise<User> => {
-  const userRef = ref(db, `users/${firebaseUser.uid}`);
-  const userSnap = await get(userRef);
+  try {
+    console.log("🔍 Creating/updating user:", firebaseUser.uid, firebaseUser.email);
+    const userRef = ref(db, `users/${firebaseUser.uid}`);
+    const userSnap = await get(userRef);
 
-  const userData = {
-    id: firebaseUser.uid,
-    email: firebaseUser.email || "",
-    name: firebaseUser.displayName || "",
-    initials: getInitials(firebaseUser.displayName || firebaseUser.email || ""),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+    const userData = {
+      id: firebaseUser.uid,
+      email: firebaseUser.email || "",
+      name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || "",
+      initials: getInitials(firebaseUser.displayName || firebaseUser.email?.split('@')[0] || ""),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-  if (!userSnap.exists()) {
-    // Create new user
-    await set(userRef, {
-      ...userData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-  } else {
-    // Update existing user
-    const existingData = userSnap.val();
-    await set(userRef, {
-      ...existingData,
-      ...userData,
-      updatedAt: new Date().toISOString(),
-    });
+    if (!userSnap.exists()) {
+      console.log("🔍 Creating new user document");
+      // Create new user
+      await set(userRef, {
+        ...userData,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    } else {
+      console.log("🔍 Updating existing user document");
+      // Update existing user
+      const existingData = userSnap.val();
+      await set(userRef, {
+        ...existingData,
+        ...userData,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+
+    console.log("🔍 User created/updated successfully:", userData);
+    return userData;
+  } catch (error) {
+    console.error("🚨 Error in createOrUpdateUser:", error);
+    throw error;
   }
-
-  return userData;
 };
 
 export const getCurrentUser = async (): Promise<User | null> => {
-  const firebaseUser = auth.currentUser;
-  if (!firebaseUser) return null;
+  try {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser) {
+      console.log("🔍 No Firebase user found");
+      return null;
+    }
 
-  const userRef = ref(db, `users/${firebaseUser.uid}`);
-  const userSnap = await get(userRef);
+    console.log("🔍 Getting user data for:", firebaseUser.uid, firebaseUser.email);
+    
+    // Test database connectivity first - try reading iOS notes data
+    try {
+      const notesRef = ref(db, `notes/${firebaseUser.uid}`);
+      const notesSnap = await get(notesRef);
+      console.log("🔍 Notes data exists:", notesSnap.exists());
+      if (notesSnap.exists()) {
+        console.log("🔍 Found iOS notes:", Object.keys(notesSnap.val()));
+      }
+    } catch (testError) {
+      console.error("🚨 Notes read test failed:", testError);
+    }
+    
+    const userRef = ref(db, `users/${firebaseUser.uid}`);
+    console.log("🔍 Database reference created:", userRef.toString());
+    const userSnap = await get(userRef);
+    console.log("🔍 Database snapshot received:", userSnap.exists(), userSnap.val());
 
-  if (userSnap.exists()) {
-    const data = userSnap.val();
-    return {
-      id: data.id,
-      email: data.email,
-      name: data.name,
-      initials: data.initials,
-      createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
-      updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
-    };
+    if (userSnap.exists()) {
+      const data = userSnap.val();
+      console.log("🔍 User data found:", data);
+      return {
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        initials: data.initials,
+        createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+        updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
+      };
+    }
+
+    console.log("🔍 User document doesn't exist, creating new user");
+    // User document doesn't exist, create it
+    return await createOrUpdateUser(firebaseUser);
+  } catch (error) {
+    console.error("🚨 Error in getCurrentUser:", error);
+    throw error;
   }
-
-  // User document doesn't exist, create it
-  return await createOrUpdateUser(firebaseUser);
 };
 
 export const onAuthStateChange = (callback: (user: FirebaseUser | null) => void) => {
