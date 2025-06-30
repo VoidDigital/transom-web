@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface WorkingTextEditorProps {
   content: string;
@@ -30,25 +30,39 @@ function textToIOSHtml(text: string): string {
 
 export function WorkingTextEditor({ content, onChange }: WorkingTextEditorProps) {
   const [text, setText] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const cursorPositionRef = useRef<number>(0);
 
   useEffect(() => {
-    setText(htmlToText(content));
-  }, [content]);
+    const newText = htmlToText(content);
+    if (newText !== text) {
+      setText(newText);
+      // Restore cursor position after content update
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.setSelectionRange(cursorPositionRef.current, cursorPositionRef.current);
+        }
+      }, 0);
+    }
+  }, [content, text]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
+    const cursorPosition = e.target.selectionStart;
+    
+    // Store cursor position
+    cursorPositionRef.current = cursorPosition;
     setText(newText);
     
     // Convert to iOS HTML format and send to parent
     const iosHtml = textToIOSHtml(newText);
-    console.log('🔍 Text input:', newText);
-    console.log('🔍 iOS HTML output:', iosHtml);
     onChange(iosHtml);
   };
 
   return (
     <div className="w-full h-full">
       <textarea
+        ref={textareaRef}
         value={text}
         onChange={handleChange}
         className="w-full h-full p-4 text-base leading-relaxed border-none outline-none resize-none bg-white"

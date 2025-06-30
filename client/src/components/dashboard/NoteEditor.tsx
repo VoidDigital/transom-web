@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SimpleTextEditor } from "@/components/editor/SimpleTextEditor";
-import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import { WorkingTextEditor } from "@/components/editor/WorkingTextEditor";
 import { HtmlContent } from "@/components/ui/html-content";
 import { Note, UpdateNote } from "@shared/schema";
@@ -173,7 +171,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
             disabled
             className="text-xs"
           >
-            TipTap
+            Text Editor
           </Button>
           <Button variant="ghost" size="sm">
             <Share className="w-4 h-4" />
