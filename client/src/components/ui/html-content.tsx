@@ -56,16 +56,16 @@ export function HtmlContent({ content, className = "" }: HtmlContentProps) {
   // For plain text content, render as simple text
   if (!content.includes('<')) {
     return (
-      <div className={`prose prose-sm max-w-none break-words overflow-hidden ${className}`}>
-        <p className="whitespace-pre-wrap break-words">{content}</p>
-      </div>
+      <span className={`break-words ${className}`}>
+        {content}
+      </span>
     );
   }
 
   // For HTML content, render safely
   return (
     <div 
-      className={`prose prose-sm max-w-none break-words overflow-hidden ${className}`}
+      className={`break-words ${className}`}
       dangerouslySetInnerHTML={{ __html: cleanHtml }}
       style={{
         lineHeight: '1.6',
