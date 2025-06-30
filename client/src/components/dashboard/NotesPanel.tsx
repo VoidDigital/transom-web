@@ -29,8 +29,28 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
     return text.length > 150 ? text.substring(0, 150) + '...' : text;
   };
 
-  // Filter out archived thoughts to show only active ones
-  const activeNotes = notes.filter(note => !note.isArchived);
+  const formatTimeAgo = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMinutes < 1) {
+      return "just now";
+    } else if (diffMinutes < 60) {
+      return diffMinutes === 1 ? "1 minute ago" : `${diffMinutes} minutes ago`;
+    } else if (diffHours < 24) {
+      return diffHours === 1 ? "1 hour ago" : `${diffHours} hours ago`;
+    } else {
+      return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
+    }
+  };
+
+  // Filter out archived thoughts and sort by updatedAt (most recent first)
+  const activeNotes = notes
+    .filter(note => !note.isArchived)
+    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
   const availableTags = tags.filter(tag => 
     !activeTagFilters.includes(tag.id) &&
@@ -125,7 +145,7 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
                   />
                 </div>
                 <span className="text-xs text-slate-400 whitespace-nowrap">
-                  {formatDistanceToNow(note.updatedAt, { addSuffix: true })}
+                  {formatTimeAgo(note.updatedAt)}
                 </span>
               </div>
               <div className="flex flex-wrap gap-1">

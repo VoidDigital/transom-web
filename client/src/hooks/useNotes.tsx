@@ -103,8 +103,8 @@ export const useNotes = (projectId?: string) => {
             projectId: noteData.projectId || null,
             tags: noteData.tags || [],
             isArchived: noteData.isArchived || false,
-            createdAt: noteData.createdAt ? new Date(noteData.createdAt * 1000) : new Date(), // iOS uses seconds
-            updatedAt: noteData.updatedAt ? new Date(noteData.updatedAt * 1000) : new Date(), // iOS uses seconds
+            createdAt: noteData.createdAt ? new Date(noteData.createdAt > 1e10 ? noteData.createdAt : noteData.createdAt * 1000) : new Date(),
+            updatedAt: noteData.updatedAt ? new Date(noteData.updatedAt > 1e10 ? noteData.updatedAt : noteData.updatedAt * 1000) : new Date(noteData.createdAt > 1e10 ? noteData.createdAt : noteData.createdAt * 1000)
           } as Note;
         });
 
