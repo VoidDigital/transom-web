@@ -103,16 +103,39 @@ export const getCurrentUser = async (): Promise<User | null> => {
     const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
     console.log("🔍 Using email key for data path:", emailKey);
     
-    // Test database connectivity first - try reading iOS notes data
+    // Test database connectivity - try different email variations
     try {
+      // Try current email
       const notesRef = ref(db, `${emailKey}/notes`);
       const notesSnap = await get(notesRef);
-      console.log("🔍 Notes data exists:", notesSnap.exists());
-      if (notesSnap.exists()) {
-        console.log("🔍 Found iOS notes:", Object.keys(notesSnap.val()));
+      console.log("🔍 Notes data exists for current email:", notesSnap.exists());
+      
+      // Try main email without +replit
+      const mainEmail = firebaseUser.email?.replace('+replit', '').replace(/\./g, '▦') || '';
+      if (mainEmail !== emailKey) {
+        const mainNotesRef = ref(db, `${mainEmail}/notes`);
+        const mainNotesSnap = await get(mainNotesRef);
+        console.log("🔍 Notes data exists for main email:", mainEmail, mainNotesSnap.exists());
+        if (mainNotesSnap.exists()) {
+          console.log("🔍 Found iOS notes under main email:", Object.keys(mainNotesSnap.val()));
+        }
+      }
+      
+      // Try reading root database structure
+      const rootRef = ref(db, '/');
+      const rootSnap = await get(rootRef);
+      if (rootSnap.exists()) {
+        const rootData = rootSnap.val();
+        console.log("🔍 Root database keys:", Object.keys(rootData));
+        // Look for email patterns in the keys
+        Object.keys(rootData).forEach(key => {
+          if (key.includes('chris') || key.includes('▦')) {
+            console.log("🔍 Found potential user data path:", key);
+          }
+        });
       }
     } catch (testError) {
-      console.error("🚨 Notes read test failed:", testError);
+      console.error("🚨 Database read test failed:", testError);
     }
     
     const userRef = ref(db, `${emailKey}/user`);
