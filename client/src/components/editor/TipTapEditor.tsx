@@ -15,7 +15,11 @@ interface TipTapEditorProps {
 export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        // Disable built-in bullet list to avoid conflicts
+        bulletList: false,
+        listItem: false,
+      }),
       Underline,
       BulletList.configure({
         HTMLAttributes: {
@@ -27,8 +31,15 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
     content: convertToTipTapFormat(content),
     onUpdate: ({ editor }) => {
       const html = editor.getHTML()
+      console.log('TipTap HTML:', html) // Debug log
       const iosCompatibleHtml = convertToIOSFormat(html)
+      console.log('iOS Compatible:', iosCompatibleHtml) // Debug log
       onChange(iosCompatibleHtml)
+    },
+    editorProps: {
+      attributes: {
+        class: 'prose max-w-none focus:outline-none',
+      },
     },
   })
 
@@ -140,10 +151,10 @@ function convertToIOSFormat(tipTapHtml: string): string {
     .replace(/<u>/gi, '<span class="s2">')
     .replace(/<\/u>/gi, '</span>')
 
-  // Wrap any unformatted text in s1 spans
-  iosHtml = iosHtml.replace(/([^<>]+)(?![^<]*>)/g, (match) => {
-    if (match.trim()) {
-      return `<span class="s1">${match}</span>`
+  // Wrap text content in s1 spans, preserving spaces and structure
+  iosHtml = iosHtml.replace(/>([^<]+)</g, (match, textContent) => {
+    if (textContent.trim()) {
+      return `><span class="s1">${textContent}</span><`
     }
     return match
   })
