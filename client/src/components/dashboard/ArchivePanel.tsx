@@ -1,7 +1,4 @@
-import { useState } from 'react';
-import { Archive, Trash2, RotateCcw, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Archive, Trash2, RotateCcw } from 'lucide-react';
 import { HtmlContent } from '@/components/ui/html-content';
 import { useNotes } from '@/hooks/useNotes';
 import { Note } from '@shared/schema';
@@ -12,17 +9,10 @@ interface ArchivePanelProps {
 }
 
 export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
-  const [searchQuery, setSearchQuery] = useState('');
   const { allNotes, loading, updateNote, deleteNote } = useNotes();
 
   // Get archived notes from the main notes hook
   const archivedNotes = allNotes.filter(note => note.isArchived);
-
-  const filteredNotes = archivedNotes.filter(note => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return note.content.toLowerCase().includes(query);
-  });
 
   const handleUnarchive = async (noteId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -68,40 +58,23 @@ export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
           </div>
         </div>
 
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Search archived thoughts..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           {archivedNotes.length} {archivedNotes.length === 1 ? 'thought' : 'thoughts'} archived
-          {searchQuery && ` (${filteredNotes.length} shown)`}
         </p>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        {filteredNotes.length === 0 ? (
+        {archivedNotes.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             <Archive className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg mb-2">
-              {searchQuery ? 'No archived thoughts found' : 'No archived thoughts'}
-            </p>
+            <p className="text-lg mb-2">No archived thoughts</p>
             <p className="text-sm">
-              {searchQuery 
-                ? 'Try adjusting your search terms' 
-                : 'Archived thoughts will appear here when you archive them'
-              }
+              Archived thoughts will appear here when you archive them
             </p>
           </div>
         ) : (
-          filteredNotes.map((note) => (
+          archivedNotes.map((note) => (
             <button
               key={note.id}
               onClick={() => onSelectNote(note)}
@@ -121,24 +94,20 @@ export default function ArchivePanel({ onSelectNote }: ArchivePanelProps) {
                     {format(new Date(note.updatedAt), 'MMM dd')}
                   </span>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      size="sm"
-                      variant="ghost"
+                    <div
                       onClick={(e) => handleUnarchive(note.id, e)}
-                      className="h-6 w-6 p-0"
+                      className="h-6 w-6 p-0 flex items-center justify-center rounded hover:bg-gray-100 cursor-pointer"
                       title="Unarchive thought"
                     >
                       <RotateCcw className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
+                    </div>
+                    <div
                       onClick={(e) => handleDelete(note.id, e)}
-                      className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      className="h-6 w-6 p-0 flex items-center justify-center rounded text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer"
                       title="Delete permanently"
                     >
                       <Trash2 className="h-3 w-3" />
-                    </Button>
+                    </div>
                   </div>
                 </div>
               </div>
