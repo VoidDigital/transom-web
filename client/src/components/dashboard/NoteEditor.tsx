@@ -33,7 +33,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   const [newTag, setNewTag] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [useRichText, setUseRichText] = useState(true); // Toggle for testing
+  const [useRichText, setUseRichText] = useState(false); // Default to plain text for stability
 
   useEffect(() => {
     if (note) {
