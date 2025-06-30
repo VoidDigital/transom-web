@@ -9,6 +9,7 @@ import ProjectsPanel from "@/components/dashboard/ProjectsPanel";
 import TagsPanel from "@/components/dashboard/TagsPanel";
 import ArchivePanel from "@/components/dashboard/ArchivePanel";
 import PreferencesPanel from "@/components/dashboard/PreferencesPanel";
+import FilteredNotesPanel from "@/components/dashboard/FilteredNotesPanel";
 import MobileNavigation from "@/components/dashboard/MobileNavigation";
 import { Loading } from "@/components/ui/loading";
 import { Note, InsertNote } from "@shared/schema";
@@ -20,6 +21,9 @@ export default function Dashboard() {
   
   const [currentView, setCurrentView] = useState<'thoughts' | 'projects' | 'tags' | 'archive' | 'preferences'>('thoughts');
   const [showEditor, setShowEditor] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
+  const [selectedFilterName, setSelectedFilterName] = useState<string>('');
 
   const handleCreateThought = async () => {
     if (!user) return;
@@ -51,12 +55,29 @@ export default function Dashboard() {
   };
 
   const handleSelectProject = (projectId: string) => {
-    console.log('Selected project:', projectId);
+    console.log("Selected project:", projectId);
+    setSelectedProjectId(projectId);
+    setSelectedTagId(null); // Clear tag selection
+    setCurrentView('thoughts'); // Switch to thoughts view to show filtered results
   };
 
   const handleSelectTag = (tagId: string) => {
-    console.log('Selected tag:', tagId);
+    console.log("Selected tag:", tagId);
+    setSelectedTagId(tagId);
+    setSelectedProjectId(null); // Clear project selection
+    setCurrentView('thoughts'); // Switch to thoughts view to show filtered results
   };
+
+  const handleViewChange = (view: 'thoughts' | 'projects' | 'tags' | 'archive' | 'preferences') => {
+    setCurrentView(view);
+    // Clear filters when switching to non-thoughts views
+    if (view !== 'thoughts') {
+      setSelectedProjectId(null);
+      setSelectedTagId(null);
+    }
+  };
+
+
 
   if (!user) {
     return <Loading message="Loading your workspace..." />;
@@ -71,7 +92,7 @@ export default function Dashboard() {
       {/* Left Sidebar */}
       <LeftSidebar
         currentView={currentView}
-        onViewChange={setCurrentView}
+        onViewChange={handleViewChange}
         onCreateThought={handleCreateThought}
       />
       
