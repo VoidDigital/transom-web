@@ -11,7 +11,7 @@ interface LeftSidebarProps {
 
 export default function LeftSidebar({ currentView, onViewChange, onCreateThought }: LeftSidebarProps) {
   const { user, signOut } = useAuth();
-  const { allNotes } = useNotes();
+  const { allNotes, tags } = useNotes();
 
   // Calculate counts for each section
   const activeNotes = allNotes.filter(note => !note.isArchived);
@@ -27,19 +27,10 @@ export default function LeftSidebar({ currentView, onViewChange, onCreateThought
       return acc;
     }, []).length;
   
-  // Extract unique tags from thoughts
-  const tagsCount = allNotes
-    .flatMap(note => note.tags)
-    .filter(tag => tag && tag.trim() !== "")
-    .reduce((acc: string[], tag) => {
-      if (!acc.includes(tag)) {
-        acc.push(tag);
-      }
-      return acc;
-    }, []).length;
+  // Use actual tags from Firebase
+  const tagsCount = tags.length;
   
   const archiveCount = allNotes.filter(note => note.isArchived).length;
-  const preferencesCount = 0; // Settings don't have a count
 
   const navigationItems = [
     {

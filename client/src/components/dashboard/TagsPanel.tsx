@@ -6,26 +6,17 @@ interface TagsPanelProps {
 }
 
 export default function TagsPanel({ onSelectTag }: TagsPanelProps) {
-  const { allNotes } = useNotes();
+  const { allNotes, tags } = useNotes();
 
-  // Extract unique tags from thoughts that have them
-  const tags = allNotes
-    .flatMap(note => note.tags)
-    .filter(tag => tag && tag.trim() !== "")
-    .reduce((acc: { id: string; name: string; thoughtCount: number }[], tagId) => {
-      const existingTag = acc.find(t => t.id === tagId);
-      if (existingTag) {
-        existingTag.thoughtCount++;
-      } else {
-        acc.push({
-          id: tagId,
-          name: tagId, // Use tagId as name for now
-          thoughtCount: 1
-        });
-      }
-      return acc;
-    }, [])
-    .sort((a, b) => b.thoughtCount - a.thoughtCount); // Sort by thought count descending
+  // Calculate thought count for each tag
+  const tagsWithCounts = tags.map(tag => {
+    const thoughtCount = allNotes.filter(note => note.tags.includes(tag.id)).length;
+    return {
+      id: tag.id,
+      name: tag.name,
+      thoughtCount
+    };
+  }).sort((a, b) => b.thoughtCount - a.thoughtCount); // Sort by thought count descending
 
   return (
     <div className="w-full lg:w-96 border-r border-slate-200 flex flex-col h-full">
@@ -34,14 +25,14 @@ export default function TagsPanel({ onSelectTag }: TagsPanelProps) {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">Tags</h2>
-            <p className="text-sm text-slate-500">{tags.length} tags</p>
+            <p className="text-sm text-slate-500">{tagsWithCounts.length} tags</p>
           </div>
         </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        {tags.length === 0 ? (
+        {tagsWithCounts.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             <Tag className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p className="text-lg mb-2">No tags yet</p>
@@ -50,7 +41,7 @@ export default function TagsPanel({ onSelectTag }: TagsPanelProps) {
             </p>
           </div>
         ) : (
-          tags.map((tag) => (
+          tagsWithCounts.map((tag) => (
             <button
               key={tag.id}
               onClick={() => onSelectTag(tag.id)}

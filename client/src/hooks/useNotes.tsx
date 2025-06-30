@@ -68,6 +68,27 @@ export const useNotes = (projectId?: string) => {
     const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
     console.log("🔍 Using email key for data path:", emailKey);
     
+    // Listen for tags in Realtime Database using email-based path
+    const tagsRef = ref(db, `${emailKey}/tags`);
+    const unsubscribeTags = onValue(tagsRef, (tagsSnapshot) => {
+      if (tagsSnapshot.exists()) {
+        const tagsData = tagsSnapshot.val();
+        const tagsArray = Object.entries(tagsData).map(([tagId, tagData]: [string, any]) => ({
+          id: tagId,
+          name: tagData.name || tagId,
+          isPiece: tagData.isPiece || false,
+          userId: firebaseUser.uid,
+          createdAt: tagData.createdAt ? new Date(tagData.createdAt) : new Date(),
+          updatedAt: tagData.updatedAt ? new Date(tagData.updatedAt) : new Date()
+        })) as Tag[];
+        setTags(tagsArray);
+        console.log("🔍 Loaded", tagsArray.length, "tags from Firebase");
+      } else {
+        setTags([]);
+        console.log("🔍 No tags found in Firebase");
+      }
+    });
+
     // Listen for thoughts in Realtime Database using email-based path (matching iOS app)
     const thoughtsRef = ref(db, `${emailKey}/thoughts`);
     const unsubscribe = onValue(thoughtsRef, async (snapshot) => {
@@ -152,37 +173,11 @@ export const useNotes = (projectId?: string) => {
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      unsubscribeTags();
+    };
   }, [user, firebaseUser, projectId]);
-
-  useEffect(() => {
-    if (!user || !firebaseUser) {
-      setTags([]);
-      return;
-    }
-
-    const tagsRef = ref(db, 'tags');
-    const unsubscribe = onValue(tagsRef, (snapshot) => {
-      if (!snapshot.exists()) {
-        setTags([]);
-        return;
-      }
-
-      const allTagsData = snapshot.val();
-      const userTags = Object.entries(allTagsData)
-        .filter(([_, tagData]: [string, any]) => tagData.userId === firebaseUser.uid)
-        .map(([tagId, tagData]: [string, any]) => ({
-          id: tagId,
-          ...tagData,
-          createdAt: tagData.createdAt ? new Date(tagData.createdAt) : new Date(),
-          updatedAt: tagData.updatedAt ? new Date(tagData.updatedAt) : new Date(),
-        } as Tag));
-      
-      setTags(userTags);
-    });
-
-    return unsubscribe;
-  }, [user, firebaseUser]);
 
   const filteredNotes = notes.filter(note => {
     // Search filter
