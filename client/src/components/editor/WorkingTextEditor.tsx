@@ -9,9 +9,40 @@ interface WorkingTextEditorProps {
 function htmlToText(html: string): string {
   if (!html) return '';
   
-  // Create a temporary DOM element to parse HTML
+  // Handle full iOS HTML documents
+  if (html.includes('<!DOCTYPE html')) {
+    // Parse the full HTML document
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // Extract text from the body, handling Apple-converted-space spans
+    const body = doc.body;
+    if (body) {
+      // Replace Apple-converted-space spans with regular spaces
+      const appleSpans = body.querySelectorAll('span.Apple-converted-space');
+      appleSpans.forEach(span => {
+        span.replaceWith(' ');
+      });
+      
+      // Get the text content and clean up extra whitespace
+      let text = body.textContent || body.innerText || '';
+      
+      // Clean up any residual formatting
+      text = text.replace(/\s+/g, ' ').trim();
+      
+      return text;
+    }
+  }
+  
+  // Handle simple HTML fragments
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = html;
+  
+  // Replace Apple-converted-space spans with regular spaces
+  const appleSpans = tempDiv.querySelectorAll('span.Apple-converted-space');
+  appleSpans.forEach(span => {
+    span.replaceWith(' ');
+  });
   
   // Get text content
   return tempDiv.textContent || tempDiv.innerText || '';
