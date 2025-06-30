@@ -134,13 +134,13 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
             <button
               key={note.id}
               onClick={() => onSelectNote(note)}
-              className={`group w-full h-20 pt-[15px] pb-0 px-4 lg:px-6 text-left border-b border-slate-100 transition-colors duration-150 ${
+              className={`group w-full h-20 px-4 lg:px-6 text-left border-b border-slate-100 transition-colors duration-150 ${
                 selectedNote?.id === note.id
                   ? "bg-primary/5 border-l-4 border-l-primary"
                   : "hover:bg-slate-50"
               }`}
             >
-              <div className="flex items-start justify-between h-full min-w-0">
+              <div className="flex items-center justify-between h-full min-w-0">
                 <div className="flex-1 text-sm text-slate-600 mr-4 min-w-0">
                   <div className="relative h-[65px] overflow-hidden break-words leading-relaxed">
                     <HtmlContent 
