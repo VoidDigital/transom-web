@@ -144,7 +144,7 @@ export default function NotesPanel({ onSelectNote, onCreateNote }: NotesPanelPro
                       content={note.content}
                       className="[&>*]:text-sm [&>*]:text-slate-600 [&>*]:break-words [&>*]:leading-relaxed [&>*]:m-0"
                     />
-                    <div className={`absolute bottom-0 left-0 right-0 h-4 pointer-events-none transition-colors duration-150 ${
+                    <div className={`absolute bottom-0 left-0 right-0 h-6 pointer-events-none transition-colors duration-150 ${
                       selectedNote?.id === note.id
                         ? "bg-gradient-to-t from-primary/5 to-transparent"
                         : "bg-gradient-to-t from-white to-transparent group-hover:from-slate-50"
