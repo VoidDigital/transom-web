@@ -139,6 +139,14 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes
 
 ### June 30, 2025 - Evening Session
+- **Rich Text Editor Development**: Implemented iOS-compatible rich text editing
+  - Created contentEditable-based editor with iOS span class mapping (s1-s4)
+  - Added proper HTML conversion between web and iOS formats
+  - Built cursor position preservation system for contentEditable
+  - Resolved iOS HTML compatibility issues (no more `<div>` elements breaking iOS display)
+  - Added toggle between rich text and plain text editors
+  - Default set to stable plain text editor while rich text remains in development
+
 - **Thought Detail Editor Complete**: Fixed text display in thought detail view
   - Improved HTML parsing to extract only text content (no CSS styles included)
   - Used proper DOMParser for robust HTML handling from iOS app data
