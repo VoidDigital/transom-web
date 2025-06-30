@@ -123,7 +123,26 @@ This is the responsive web interface for Transom, a note-taking app for writers.
 
 Preferred communication style: Simple, everyday language.
 
+## Firebase Security Rules (Original - for rollback)
+
+```json
+{
+  "rules": {
+    "$email":{
+      ".read": "$email === auth.token.email.replace('.', '▦')",
+      ".write": "$email === auth.token.email.replace('.', '▦')"
+    }
+  }
+}
+```
+
 ## Recent Changes
+
+### June 30, 2025
+- **Database Migration**: Successfully converted entire codebase from Firestore to Firebase Realtime Database
+  - Updated all CRUD operations in useNotes.tsx, useProjects.tsx, and useAuth.tsx
+  - Fixed authentication system to work with Realtime Database
+  - Identified PERMISSION_DENIED error due to Firebase security rules mismatch
 
 ### June 28, 2025
 - **Navigation Restructure**: Implemented two-panel dashboard layout with left sidebar navigation

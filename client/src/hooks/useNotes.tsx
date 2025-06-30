@@ -64,8 +64,12 @@ export const useNotes = (projectId?: string) => {
       }
     }).catch(err => console.log("🔍 Realtime Database connection error:", err));
 
-    // Listen for notes in Realtime Database
-    const notesRef = ref(db, 'notes');
+    // Use email-based path matching iOS app format
+    const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
+    console.log("🔍 Using email key for data path:", emailKey);
+    
+    // Listen for notes in Realtime Database using email-based path
+    const notesRef = ref(db, `${emailKey}/notes`);
     const unsubscribe = onValue(notesRef, async (snapshot) => {
       if (!snapshot.exists()) {
         console.log("🔍 No notes found in Realtime Database");
@@ -78,9 +82,8 @@ export const useNotes = (projectId?: string) => {
       const allNotesData = snapshot.val();
       console.log("🔍 Realtime Database returned", Object.keys(allNotesData).length, "total notes");
       
-      // Filter notes for current user
-      const userNotes = Object.entries(allNotesData)
-        .filter(([_, noteData]: [string, any]) => noteData.userId === firebaseUser.uid)
+      // Process notes data - no need to filter by userId since we're already in user's email path
+      const userNotes = Object.entries(allNotesData || {})
         .map(([noteId, noteData]: [string, any]) => {
           console.log("🔍 Full Note data:", {
             id: noteId,

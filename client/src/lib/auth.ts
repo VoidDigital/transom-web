@@ -48,7 +48,9 @@ export const handleRedirectResult = async () => {
 export const createOrUpdateUser = async (firebaseUser: FirebaseUser): Promise<User> => {
   try {
     console.log("🔍 Creating/updating user:", firebaseUser.uid, firebaseUser.email);
-    const userRef = ref(db, `users/${firebaseUser.uid}`);
+    // Use email-based path matching iOS app format
+    const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
+    const userRef = ref(db, `${emailKey}/user`);
     const userSnap = await get(userRef);
 
     const userData = {
@@ -97,9 +99,13 @@ export const getCurrentUser = async (): Promise<User | null> => {
 
     console.log("🔍 Getting user data for:", firebaseUser.uid, firebaseUser.email);
     
+    // Use email-based path matching iOS app format
+    const emailKey = firebaseUser.email?.replace(/\./g, '▦') || '';
+    console.log("🔍 Using email key for data path:", emailKey);
+    
     // Test database connectivity first - try reading iOS notes data
     try {
-      const notesRef = ref(db, `notes/${firebaseUser.uid}`);
+      const notesRef = ref(db, `${emailKey}/notes`);
       const notesSnap = await get(notesRef);
       console.log("🔍 Notes data exists:", notesSnap.exists());
       if (notesSnap.exists()) {
@@ -109,7 +115,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
       console.error("🚨 Notes read test failed:", testError);
     }
     
-    const userRef = ref(db, `users/${firebaseUser.uid}`);
+    const userRef = ref(db, `${emailKey}/user`);
     console.log("🔍 Database reference created:", userRef.toString());
     const userSnap = await get(userRef);
     console.log("🔍 Database snapshot received:", userSnap.exists(), userSnap.val());
