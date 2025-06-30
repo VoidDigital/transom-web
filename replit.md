@@ -151,6 +151,12 @@ Preferred communication style: Simple, everyday language.
   - Web-created thoughts now display perfectly in iOS app
   - Spaces and line breaks work correctly across both platforms
   - Clean, stable editing experience with full cross-platform compatibility
+  - **Known Limitation**: Editing iOS-created thoughts removes formatting (acceptable trade-off for stability)
+
+- **Timestamp Consistency Fixed**: Resolved sorting issues caused by mixed timestamp formats
+  - Enhanced timestamp parsing to handle both seconds (iOS) and milliseconds (web) formats
+  - Added proper integer conversion for consistent chronological sorting
+  - Fixed float timestamp comparison issues in Firebase data
 
 - **Thought Detail Editor Complete**: Fixed text display in thought detail view
   - Improved HTML parsing to extract only text content (no CSS styles included)
