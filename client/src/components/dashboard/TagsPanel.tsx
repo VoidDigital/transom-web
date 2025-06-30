@@ -8,8 +8,11 @@ interface TagsPanelProps {
 export default function TagsPanel({ onSelectTag }: TagsPanelProps) {
   const { allNotes, tags } = useNotes();
 
+  // Only show regular tags (not projects - isPiece=true)
+  const regularTags = tags.filter(tag => tag.isPiece !== true);
+  
   // Calculate thought count for each tag
-  const tagsWithCounts = tags.map(tag => {
+  const tagsWithCounts = regularTags.map(tag => {
     const thoughtCount = allNotes.filter(note => note.tags.includes(tag.id)).length;
     return {
       id: tag.id,

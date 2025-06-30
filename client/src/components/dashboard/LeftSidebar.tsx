@@ -17,18 +17,11 @@ export default function LeftSidebar({ currentView, onViewChange, onCreateThought
   const activeNotes = allNotes.filter(note => !note.isArchived);
   const thoughtsCount = activeNotes.length;
   
-  // Extract unique project IDs from thoughts
-  const projectsCount = allNotes
-    .filter(note => note.projectId && note.projectId.trim() !== "")
-    .reduce((acc: string[], note) => {
-      if (!acc.includes(note.projectId!)) {
-        acc.push(note.projectId!);
-      }
-      return acc;
-    }, []).length;
+  // Projects are tags with isPiece=true
+  const projectsCount = tags.filter(tag => tag.isPiece === true).length;
   
-  // Use actual tags from Firebase
-  const tagsCount = tags.length;
+  // Regular tags (not projects)
+  const tagsCount = tags.filter(tag => tag.isPiece !== true).length;
   
   const archiveCount = allNotes.filter(note => note.isArchived).length;
 

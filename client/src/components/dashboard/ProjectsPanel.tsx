@@ -6,25 +6,20 @@ interface ProjectsPanelProps {
 }
 
 export default function ProjectsPanel({ onSelectProject }: ProjectsPanelProps) {
-  const { allNotes } = useNotes();
+  const { allNotes, tags } = useNotes();
 
-  // Extract unique project IDs from thoughts that have them
-  const projects = allNotes
-    .filter(note => note.projectId && note.projectId.trim() !== "")
-    .reduce((acc: { id: string; name: string; thoughtCount: number }[], note) => {
-      const existingProject = acc.find(p => p.id === note.projectId);
-      if (existingProject) {
-        existingProject.thoughtCount++;
-      } else {
-        acc.push({
-          id: note.projectId!,
-          name: note.projectId!, // Use projectId as name for now
-          thoughtCount: 1
-        });
-      }
-      return acc;
-    }, [])
-    .sort((a, b) => b.thoughtCount - a.thoughtCount); // Sort by thought count descending
+  // Projects are tags with isPiece=true
+  const projectTags = tags.filter(tag => tag.isPiece === true);
+  
+  // Calculate thought count for each project
+  const projects = projectTags.map(tag => {
+    const thoughtCount = allNotes.filter(note => note.tags.includes(tag.id)).length;
+    return {
+      id: tag.id,
+      name: tag.name,
+      thoughtCount
+    };
+  }).sort((a, b) => b.thoughtCount - a.thoughtCount); // Sort by thought count descending
 
   return (
     <div className="w-full lg:w-96 border-r border-slate-200 flex flex-col h-full">
