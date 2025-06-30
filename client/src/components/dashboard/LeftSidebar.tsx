@@ -2,7 +2,6 @@ import { StickyNote, Folder, Tag, Archive, Settings, PenTool, Plus, LogOut } fro
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotes } from '@/hooks/useNotes';
-import { useArchivedNotes } from '@/hooks/useArchivedNotes';
 
 interface LeftSidebarProps {
   currentView: 'thoughts' | 'projects' | 'tags' | 'archive' | 'preferences';
@@ -12,14 +11,34 @@ interface LeftSidebarProps {
 
 export default function LeftSidebar({ currentView, onViewChange, onCreateThought }: LeftSidebarProps) {
   const { user, signOut } = useAuth();
-  const { notes, tags } = useNotes();
-  const { archivedNotes } = useArchivedNotes();
+  const { allNotes } = useNotes();
 
   // Calculate counts for each section
-  const thoughtsCount = notes.length;
-  const projectsCount = tags.filter(tag => tag.isPiece === true).length;
-  const tagsCount = tags.filter(tag => tag.isPiece === false).length;
-  const archiveCount = archivedNotes.length;
+  const activeNotes = allNotes.filter(note => !note.isArchived);
+  const thoughtsCount = activeNotes.length;
+  
+  // Extract unique project IDs from thoughts
+  const projectsCount = allNotes
+    .filter(note => note.projectId && note.projectId.trim() !== "")
+    .reduce((acc: string[], note) => {
+      if (!acc.includes(note.projectId!)) {
+        acc.push(note.projectId!);
+      }
+      return acc;
+    }, []).length;
+  
+  // Extract unique tags from thoughts
+  const tagsCount = allNotes
+    .flatMap(note => note.tags)
+    .filter(tag => tag && tag.trim() !== "")
+    .reduce((acc: string[], tag) => {
+      if (!acc.includes(tag)) {
+        acc.push(tag);
+      }
+      return acc;
+    }, []).length;
+  
+  const archiveCount = allNotes.filter(note => note.isArchived).length;
   const preferencesCount = 0; // Settings don't have a count
 
   const navigationItems = [
