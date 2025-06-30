@@ -34,7 +34,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   const [newTag, setNewTag] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [editorType, setEditorType] = useState<'plain' | 'rich' | 'tiptap'>('tiptap'); // Default to TipTap
+  // Using TipTap editor only for troubleshooting
 
   useEffect(() => {
     if (note) {
@@ -170,14 +170,10 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => {
-              if (editorType === 'plain') setEditorType('tiptap');
-              else if (editorType === 'tiptap') setEditorType('rich');
-              else setEditorType('plain');
-            }}
+            disabled
             className="text-xs"
           >
-            {editorType === 'plain' ? "Plain" : editorType === 'tiptap' ? "TipTap" : "Rich"}
+            TipTap
           </Button>
           <Button variant="ghost" size="sm">
             <Share className="w-4 h-4" />
@@ -191,22 +187,10 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
       {/* Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 p-4 lg:p-6">
-          {editorType === 'tiptap' ? (
-            <TipTapEditor
-              content={content}
-              onChange={handleContentChange}
-            />
-          ) : editorType === 'rich' ? (
-            <RichTextEditor
-              content={content}
-              onChange={handleContentChange}
-            />
-          ) : (
-            <SimpleTextEditor
-              content={content}
-              onChange={handleContentChange}
-            />
-          )}
+          <TipTapEditor
+            content={content}
+            onChange={handleContentChange}
+          />
         </div>
 
         {/* Tags Section */}

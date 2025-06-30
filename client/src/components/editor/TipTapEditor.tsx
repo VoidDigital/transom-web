@@ -20,7 +20,10 @@ const SpaceHandler = Extension.create({
   addKeyboardShortcuts() {
     return {
       'Space': () => {
-        return this.editor.commands.insertContent(' ')
+        console.log('🚀 SPACE HANDLER TRIGGERED')
+        const result = this.editor.commands.insertContent(' ')
+        console.log('🚀 Space insert result:', result)
+        return result
       },
     }
   },
