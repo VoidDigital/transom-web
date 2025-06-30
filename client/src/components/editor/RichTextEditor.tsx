@@ -127,7 +127,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         contentEditable
         onInput={handleInput}
         onKeyDown={handleKeyDown}
-        className="w-full h-full p-0 focus:outline-none"
+        className="w-full h-full p-0 focus:outline-none [&_p]:mb-4 [&_p]:leading-relaxed [&_b]:font-bold [&_i]:italic [&_u]:underline [&_ul]:list-disc [&_ul]:ml-6 [&_li]:mb-1"
         style={{ 
           direction: 'ltr', 
           textAlign: 'left',
