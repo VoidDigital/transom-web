@@ -24,11 +24,21 @@ function htmlToText(html: string): string {
         span.replaceWith(' ');
       });
       
-      // Get the text content and clean up extra whitespace
-      let text = body.textContent || body.innerText || '';
+      // Get text content while preserving line breaks
+      let text = '';
+      const paragraphs = body.querySelectorAll('p');
       
-      // Clean up any residual formatting
-      text = text.replace(/\s+/g, ' ').trim();
+      paragraphs.forEach((p, index) => {
+        const pText = p.textContent || p.innerText || '';
+        
+        // Add the paragraph text (empty or not)
+        text += pText.trim();
+        
+        // Add line break after each paragraph except the last one
+        if (index < paragraphs.length - 1) {
+          text += '\n';
+        }
+      });
       
       return text;
     }
