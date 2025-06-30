@@ -13,20 +13,7 @@ interface TipTapEditorProps {
   onChange: (content: string) => void;
 }
 
-// Custom extension to handle space bar explicitly
-const SpaceHandler = Extension.create({
-  name: 'spaceHandler',
-  
-  addKeyboardShortcuts() {
-    return {
-      'Space': () => {
-        console.log('🚀 SPACE HANDLER TRIGGERED')
-        // Let the default space behavior happen - return false to not override
-        return false
-      },
-    }
-  },
-})
+// Removed SpaceHandler - letting TipTap handle spaces naturally
 
 export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
   const editor = useEditor({
@@ -43,7 +30,6 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
         },
       }),
       ListItem,
-      SpaceHandler,
     ],
     content: convertToTipTapFormat(content),
     onUpdate: ({ editor }) => {
