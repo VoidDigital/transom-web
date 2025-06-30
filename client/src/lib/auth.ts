@@ -131,18 +131,45 @@ export const getCurrentUser = async (): Promise<User | null> => {
         }
       }
       
-      // Try reading root database structure
+      // Comprehensive database exploration
       const rootRef = ref(db, '/');
       const rootSnap = await get(rootRef);
       if (rootSnap.exists()) {
         const rootData = rootSnap.val();
         console.log("🔍 Root database keys:", Object.keys(rootData));
+        
         // Look for email patterns in the keys
         Object.keys(rootData).forEach(key => {
           if (key.includes('chris') || key.includes('▦')) {
             console.log("🔍 Found potential user data path:", key);
+            if (typeof rootData[key] === 'object' && rootData[key] !== null) {
+              console.log("🔍 Sub-keys for", key + ":", Object.keys(rootData[key]));
+            }
           }
         });
+        
+        // Test different potential paths
+        const testPaths = [
+          `${emailKey}`,
+          `${emailKey}/thoughts`, 
+          `${emailKey}/notes`,
+          `thoughts/${firebaseUser.uid}`,
+          `notes/${firebaseUser.uid}`,
+          `thoughts`,
+          `notes`
+        ];
+        
+        for (const path of testPaths) {
+          const testRef = ref(db, path);
+          const testSnap = await get(testRef);
+          if (testSnap.exists()) {
+            console.log(`🔍 Data found at path "${path}":`, testSnap.exists());
+            const data = testSnap.val();
+            if (typeof data === 'object' && data !== null) {
+              console.log(`🔍 Keys at "${path}":`, Object.keys(data).slice(0, 10));
+            }
+          }
+        }
       }
     } catch (testError) {
       console.error("🚨 Database read test failed:", testError);
