@@ -11,9 +11,16 @@ export default function ProjectsPanel({ onSelectProject }: ProjectsPanelProps) {
   // Projects are tags with isPiece=true
   const projectTags = tags.filter(tag => tag.isPiece === true);
   
-  // Calculate thought count for each project
+  // Calculate thought count for each project using tagNames field
   const projects = projectTags.map(tag => {
-    const thoughtCount = allNotes.filter(note => note.tags.includes(tag.id)).length;
+    const thoughtCount = allNotes.filter(note => {
+      if (!note.isArchived) { // Only count non-archived thoughts
+        const tagNames = note.tagNames || '';
+        const tagList = tagNames.split('~').filter(t => t.trim() !== '');
+        return tagList.includes(tag.name);
+      }
+      return false;
+    }).length;
     return {
       id: tag.id,
       name: tag.name,

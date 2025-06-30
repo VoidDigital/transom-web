@@ -11,9 +11,16 @@ export default function TagsPanel({ onSelectTag }: TagsPanelProps) {
   // Only show regular tags (not projects - isPiece=true)
   const regularTags = tags.filter(tag => tag.isPiece !== true);
   
-  // Calculate thought count for each tag
+  // Calculate thought count for each tag using tagNames field
   const tagsWithCounts = regularTags.map(tag => {
-    const thoughtCount = allNotes.filter(note => note.tags.includes(tag.id)).length;
+    const thoughtCount = allNotes.filter(note => {
+      if (!note.isArchived) { // Only count non-archived thoughts
+        const tagNames = note.tagNames || '';
+        const tagList = tagNames.split('~').filter(t => t.trim() !== '');
+        return tagList.includes(tag.name);
+      }
+      return false;
+    }).length;
     return {
       id: tag.id,
       name: tag.name,
