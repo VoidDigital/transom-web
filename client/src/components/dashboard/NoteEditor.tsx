@@ -35,6 +35,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showCreatedDate, setShowCreatedDate] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [hasBeenEdited, setHasBeenEdited] = useState(false);
   // Using TipTap editor only for troubleshooting
 
   useEffect(() => {
@@ -42,8 +43,11 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
       setContent(note.content);
       setSelectedProjectId(note.projectId);
       setHasUnsavedChanges(false);
-      // For newly created thoughts, show "Created" initially
-      setShowCreatedDate(!note.updatedAt || note.createdAt === note.updatedAt);
+      // For newly created thoughts or unedited thoughts, show "Created" initially
+      const isNewOrUnedited = !note.updatedAt || 
+                              note.createdAt === note.updatedAt ||
+                              Math.abs(note.createdAt.getTime() - (note.updatedAt?.getTime() || 0)) < 1000;
+      setShowCreatedDate(isNewOrUnedited);
     }
   }, [note]);
 
