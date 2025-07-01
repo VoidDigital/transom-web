@@ -138,7 +138,19 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### July 1, 2025 - Navigation and UI Consistency
+### July 1, 2025 - UI Improvements and Auto-Focus Enhancement
+- **Auto-Focus for New Thoughts**: Added immediate text cursor focus for new thoughts
+  - Text editor automatically focuses when creating new thoughts (temp- ID thoughts)
+  - Users can start typing immediately without clicking in the text area
+  - Auto-focus only triggers for new thoughts, existing thoughts remain undisturbed
+  - Improves user experience by eliminating the extra click step
+
+- **Thought Detail UI Reorganization**: Moved "Last edited" timestamp to optimal position
+  - Relocated timestamp from bottom footer to top header area
+  - Positioned adjacent to back button on the left side for better visibility
+  - Maintains clean layout while providing important temporal context
+  - Removes cluttered footer area for cleaner thought editing experience
+
 - **Top-Level Navigation Enhancement**: Fixed navigation to work from any depth
   - Clicking any main nav item (Thoughts, Projects, Tags, Archive, Account Settings) now properly navigates to that section
   - Navigation clears editor state and selected note when switching sections

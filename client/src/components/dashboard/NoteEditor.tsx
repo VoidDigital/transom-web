@@ -33,6 +33,8 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   const [newTag, setNewTag] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showCreatedDate, setShowCreatedDate] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   // Using TipTap editor only for troubleshooting
 
   useEffect(() => {
@@ -40,8 +42,43 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
       setContent(note.content);
       setSelectedProjectId(note.projectId);
       setHasUnsavedChanges(false);
+      // For newly created thoughts, show "Created" initially
+      setShowCreatedDate(!note.updatedAt || note.createdAt === note.updatedAt);
     }
   }, [note]);
+
+  // Real-time timestamp updates every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Custom formatting function that replaces "less than a minute ago" with "just now"
+  const formatTimestamp = (timestamp: number) => {
+    const date = new Date(timestamp);
+    const timeAgo = formatDistanceToNow(date);
+    return timeAgo === 'less than a minute' ? 'just now' : timeAgo;
+  };
+
+  // Handle clicking on timestamp to cycle between created/updated
+  const handleTimestampClick = () => {
+    setShowCreatedDate(!showCreatedDate);
+  };
+
+  // Get the appropriate timestamp text
+  const getTimestampText = () => {
+    if (!note) return '';
+    
+    if (showCreatedDate) {
+      return `Created ${formatTimestamp(note.createdAt)} ago`;
+    } else {
+      const updateTime = note.updatedAt || note.createdAt;
+      return `Last edited ${formatTimestamp(updateTime)} ago`;
+    }
+  };
 
   // Clean up empty thoughts when navigating away
   useEffect(() => {
@@ -176,10 +213,13 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
               <ArrowLeft className="w-4 h-4" />
             </Button>
           )}
-          {note?.updatedAt && (
-            <span className="text-xs text-gray-500">
-              Last edited {formatDistanceToNow(note.updatedAt)} ago
-            </span>
+          {note && (
+            <button 
+              onClick={handleTimestampClick}
+              className="text-xs text-gray-500 hover:text-gray-700 cursor-pointer"
+            >
+              {getTimestampText()}
+            </button>
           )}
         </div>
 
