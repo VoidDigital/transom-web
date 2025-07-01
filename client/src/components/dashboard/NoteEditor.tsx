@@ -140,22 +140,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
             </Button>
           )}
           
-          {/* Project Selection */}
-          <div className="flex items-center space-x-2">
-            <Folder className="w-4 h-4 text-gray-500" />
-            <Select value={selectedProjectId} onValueChange={handleProjectChange}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Select project" />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+
         </div>
 
         <div className="flex items-center space-x-2">
@@ -191,54 +176,66 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
           />
         </div>
 
-        {/* Tags Section */}
+        {/* Project and Tags Section */}
         <div className="px-4 lg:px-6 py-4 border-t border-gray-200">
-          <div className="flex items-center space-x-2 mb-3">
-            <Tag className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-medium text-gray-700">Tags</span>
-          </div>
-          
-          {/* Existing Tags */}
-          <div className="flex flex-wrap gap-2 mb-3">
-            {noteTags.map((tag) => (
-              <Badge
-                key={tag.id}
-                variant="secondary"
-                className="flex items-center space-x-1"
-              >
-                <span>{tag.name}</span>
-                <button
-                  onClick={() => handleRemoveTag(tag.id)}
-                  className="ml-1 hover:text-red-500"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </Badge>
-            ))}
+          <div className="flex gap-6">
+            {/* Project Section */}
+            <div className="flex items-center space-x-2">
+              <Folder className="w-4 h-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">Project</span>
+              <Select value={selectedProjectId} onValueChange={handleProjectChange}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Tag Section */}
+            <div className="flex items-center space-x-2 flex-1">
+              <Tag className="w-4 h-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">Tag</span>
+              <Input
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                placeholder="Add a tag..."
+                className="flex-1"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddTag();
+                  }
+                }}
+              />
+            </div>
           </div>
 
-          {/* Add New Tag */}
-          <div className="flex space-x-2">
-            <Input
-              value={newTag}
-              onChange={(e) => setNewTag(e.target.value)}
-              placeholder="Add a tag..."
-              className="flex-1"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleAddTag();
-                }
-              }}
-            />
-            <Button
-              onClick={handleAddTag}
-              disabled={!newTag.trim()}
-              size="sm"
-            >
-              <Plus className="w-4 h-4" />
-            </Button>
-          </div>
+          {/* Existing Tags */}
+          {noteTags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {noteTags.map((tag) => (
+                <Badge
+                  key={tag.id}
+                  variant="secondary"
+                  className="flex items-center space-x-1"
+                >
+                  <span>{tag.name}</span>
+                  <button
+                    onClick={() => handleRemoveTag(tag.id)}
+                    className="ml-1 hover:text-red-500"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
