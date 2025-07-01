@@ -210,6 +210,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
           <WorkingTextEditor
             content={content}
             onChange={handleContentChange}
+            autoFocus={note?.id.startsWith('temp-')}
           />
         </div>
 

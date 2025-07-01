@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 interface WorkingTextEditorProps {
   content: string;
   onChange: (content: string) => void;
+  autoFocus?: boolean;
 }
 
 // Convert HTML to plain text for editing
@@ -75,7 +76,7 @@ function textToIOSHtml(text: string): string {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="Content-Style-Type" content="text/css"><title></title><meta name="Generator" content="Cocoa HTML Writer"><style type="text/css">p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px 'SF Pro Display'; color: #383838; -webkit-text-stroke: #383838}span.s1 {font-family: 'SFProDisplay-Regular'; font-weight: normal; font-style: normal; font-size: 18.00px; font-kerning: none}</style></head><body>${bodyContent}</body></html>`;
 }
 
-export function WorkingTextEditor({ content, onChange }: WorkingTextEditorProps) {
+export function WorkingTextEditor({ content, onChange, autoFocus = false }: WorkingTextEditorProps) {
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isUserTypingRef = useRef(false);
@@ -87,6 +88,13 @@ export function WorkingTextEditor({ content, onChange }: WorkingTextEditorProps)
       setText(newText);
     }
   }, [content]);
+
+  useEffect(() => {
+    // Auto-focus the textarea when autoFocus is true
+    if (autoFocus && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [autoFocus]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
