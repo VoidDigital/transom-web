@@ -72,6 +72,11 @@ export default function Dashboard() {
 
   const handleViewChange = (view: 'thoughts' | 'projects' | 'tags' | 'archive' | 'preferences') => {
     setCurrentView(view);
+    
+    // Always close editor and clear selected note when navigating to top-level sections
+    setShowEditor(false);
+    setSelectedNote(null);
+    
     // Clear filters when switching to non-thoughts views
     if (view !== 'thoughts') {
       setSelectedProjectId(null);
