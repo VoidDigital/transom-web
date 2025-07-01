@@ -174,7 +174,10 @@ export default function PreferencesPanel() {
         {/* Header */}
         <div className="flex items-center gap-3">
           <Settings className="h-6 w-6 text-gray-500" />
-          <h1 className="text-2xl font-bold">Account Settings</h1>
+          <div>
+            <h1 className="text-2xl font-bold">Account Settings</h1>
+            <p className="text-sm text-gray-400 mt-1">{user?.email}</p>
+          </div>
         </div>
 
         {/* Account Section */}
