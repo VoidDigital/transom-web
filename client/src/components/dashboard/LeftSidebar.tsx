@@ -149,7 +149,7 @@ export default function LeftSidebar({ currentView, onViewChange, onCreateThought
                   <p className={`font-medium ${isActive ? 'text-primary' : ''}`}>
                     {accountItem.label}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-gray-400 mt-0.5 truncate">
                     {user?.email}
                   </p>
                 </div>
