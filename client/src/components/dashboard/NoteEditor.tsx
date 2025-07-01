@@ -71,7 +71,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
       date = new Date();
     }
     const timeAgo = formatDistanceToNow(date);
-    return timeAgo === 'less than a minute' ? 'just now' : timeAgo;
+    return timeAgo === 'less than a minute' ? 'just now' : `${timeAgo} ago`;
   };
 
   // Handle clicking on timestamp to cycle between created/updated
@@ -87,10 +87,10 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
     currentTime;
     
     if (showCreatedDate) {
-      return `Created ${formatTimestamp(note.createdAt)} ago`;
+      return `Created ${formatTimestamp(note.createdAt)}`;
     } else {
       const updateTime = note.updatedAt || note.createdAt;
-      return `Last edited ${formatTimestamp(updateTime)} ago`;
+      return `Last edited ${formatTimestamp(updateTime)}`;
     }
   };
 
