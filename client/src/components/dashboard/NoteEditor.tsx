@@ -19,6 +19,7 @@ interface NoteEditorProps {
 export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   const { projects, selectedProject } = useProjects();
   const { 
+    createNote,
     updateNote, 
     deleteNote, 
     tags, 
@@ -42,6 +43,18 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
     }
   }, [note]);
 
+  // Clean up empty thoughts when navigating away
+  useEffect(() => {
+    return () => {
+      if (note && !content.trim()) {
+        // Only delete real notes, temporary notes just disappear
+        if (!note.id.startsWith('temp-')) {
+          deleteNote(note.id).catch(console.error);
+        }
+      }
+    };
+  }, [note, content, deleteNote]);
+
   useEffect(() => {
     if (!note) return;
 
@@ -49,13 +62,37 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
       if (hasUnsavedChanges) {
         try {
           setIsSaving(true);
-          const updates: UpdateNote = {};
           
-          if (content !== note.content) updates.content = content;
-          if (selectedProjectId !== note.projectId) updates.projectId = selectedProjectId;
+          // If content is empty, handle deletion
+          if (!content.trim()) {
+            // Only delete if it's a real note (not temporary)
+            if (!note.id.startsWith('temp-')) {
+              await deleteNote(note.id);
+            }
+            onBack?.();
+            return;
+          }
+          
+          // If this is a temporary note, create it in the database
+          if (note.id.startsWith('temp-')) {
+            const newNoteData = {
+              content: content,
+              userId: note.userId,
+              projectId: selectedProjectId,
+              tags: note.tags,
+            };
+            await createNote(newNoteData);
+            // Note: The note will be refreshed through the useNotes hook
+          } else {
+            // Update existing note
+            const updates: UpdateNote = {};
+            
+            if (content !== note.content) updates.content = content;
+            if (selectedProjectId !== note.projectId) updates.projectId = selectedProjectId;
 
-          if (Object.keys(updates).length > 0) {
-            await updateNote(note.id, updates);
+            if (Object.keys(updates).length > 0) {
+              await updateNote(note.id, updates);
+            }
           }
           setHasUnsavedChanges(false);
         } catch (error) {
@@ -67,7 +104,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
     }, 1000);
 
     return () => clearTimeout(timeoutId);
-  }, [note, content, selectedProjectId, hasUnsavedChanges, updateNote]);
+  }, [note, content, selectedProjectId, hasUnsavedChanges, updateNote, deleteNote, createNote, onBack]);
 
   const handleContentChange = (newContent: string) => {
     setContent(newContent);

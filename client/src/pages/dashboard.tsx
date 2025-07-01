@@ -29,15 +29,19 @@ export default function Dashboard() {
     if (!user) return;
 
     try {
-      const newNoteData: InsertNote = {
+      // Create a temporary note object for editing (not saved to database yet)
+      const tempNote: Note = {
+        id: `temp-${Date.now()}`, // Temporary ID
         content: "",
         userId: user.id,
         projectId: selectedProject?.id || "",
         tags: [],
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
-      const newNote = await createNote(newNoteData);
-      setSelectedNote(newNote);
+      setSelectedNote(tempNote);
       setShowEditor(true);
     } catch (error) {
       console.error("Error creating thought:", error);
