@@ -176,8 +176,15 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
               <ArrowLeft className="w-4 h-4" />
             </Button>
           )}
-          
+        </div>
 
+        {/* Last edited info - centered */}
+        <div className="flex-1 flex justify-center">
+          {note?.updatedAt && (
+            <span className="text-xs text-gray-500">
+              Last edited {formatDistanceToNow(note.updatedAt)} ago
+            </span>
+          )}
         </div>
 
         <div className="flex items-center space-x-2">
@@ -277,12 +284,6 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
         </div>
       </div>
 
-      {/* Footer with metadata */}
-      <div className="px-4 lg:px-6 py-2 border-t border-gray-200 text-xs text-gray-500">
-        {note.updatedAt && (
-          <span>Last edited {formatDistanceToNow(note.updatedAt)} ago</span>
-        )}
-      </div>
     </div>
   );
 }
