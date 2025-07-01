@@ -43,6 +43,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
       setContent(note.content);
       setSelectedProjectId(note.projectId);
       setHasUnsavedChanges(false);
+      setHasBeenEdited(false);
       // For newly created thoughts or unedited thoughts, show "Created" initially
       const isNewOrUnedited = !note.updatedAt || 
                               note.createdAt === note.updatedAt ||
@@ -89,6 +90,10 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
     if (showCreatedDate) {
       return `Created ${formatTimestamp(note.createdAt)}`;
     } else {
+      // If content has been edited but not saved yet, show "just now"
+      if (hasBeenEdited && content !== note.content) {
+        return `Last edited just now`;
+      }
       const updateTime = note.updatedAt || note.createdAt;
       return `Last edited ${formatTimestamp(updateTime)}`;
     }
@@ -160,6 +165,12 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   const handleContentChange = (newContent: string) => {
     setContent(newContent);
     setHasUnsavedChanges(true);
+    
+    // If content is being edited and we're showing "Created", switch to "Last edited"
+    if (note && newContent !== note.content && showCreatedDate) {
+      setShowCreatedDate(false);
+      setHasBeenEdited(true);
+    }
   };
 
   const handleProjectChange = (projectId: string) => {

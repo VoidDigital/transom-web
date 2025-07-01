@@ -138,7 +138,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### July 1, 2025 - UI Improvements and Auto-Focus Enhancement
+### July 1, 2025 - UI Improvements and Interactive Timestamp System
+- **Interactive Timestamp Display**: Implemented clickable timestamp with dual-mode cycling
+  - Timestamp cycles between "Created" and "Last edited" when clicked
+  - New thoughts initially show "Created" timestamp
+  - Real-time updates every minute for accurate time display
+  - Custom formatting: "just now" appears without "ago" suffix
+  - Positioned adjacent to back button with hover effects for discoverability
+
 - **Auto-Focus for New Thoughts**: Added immediate text cursor focus for new thoughts
   - Text editor automatically focuses when creating new thoughts (temp- ID thoughts)
   - Users can start typing immediately without clicking in the text area
