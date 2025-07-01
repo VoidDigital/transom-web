@@ -176,10 +176,6 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
               <ArrowLeft className="w-4 h-4" />
             </Button>
           )}
-        </div>
-
-        {/* Last edited info - centered */}
-        <div className="flex-1 flex justify-center">
           {note?.updatedAt && (
             <span className="text-xs text-gray-500">
               Last edited {formatDistanceToNow(note.updatedAt)} ago
