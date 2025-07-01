@@ -51,14 +51,15 @@ export default function LeftSidebar({ currentView, onViewChange, onCreateThought
       icon: Archive,
       label: 'Archive',
       count: archiveCount
-    },
-    {
-      id: 'preferences' as const,
-      icon: Settings,
-      label: 'Account Settings',
-      count: null
     }
   ];
+
+  const accountItem = {
+    id: 'preferences' as const,
+    icon: Settings,
+    label: 'Account Settings',
+    count: null
+  };
 
   return (
     <div className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col h-screen fixed left-0 top-0">
@@ -82,7 +83,8 @@ export default function LeftSidebar({ currentView, onViewChange, onCreateThought
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
+      <nav className="flex-1 p-4 flex flex-col">
+        {/* Main Navigation Items */}
         <div className="space-y-2">
           {navigationItems.map((item) => {
             const Icon = item.icon;
@@ -125,6 +127,32 @@ export default function LeftSidebar({ currentView, onViewChange, onCreateThought
               </button>
             );
           })}
+        </div>
+
+        {/* Account Settings - Separated at bottom */}
+        <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-800">
+          {(() => {
+            const Icon = accountItem.icon;
+            const isActive = currentView === accountItem.id;
+            
+            return (
+              <button
+                onClick={() => onViewChange(accountItem.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
+                  isActive 
+                    ? 'bg-primary/10 text-primary border border-primary/20' 
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
+                }`}
+              >
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className={`font-medium ${isActive ? 'text-primary' : ''}`}>
+                    {accountItem.label}
+                  </p>
+                </div>
+              </button>
+            );
+          })()}
         </div>
       </nav>
     </div>
