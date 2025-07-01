@@ -2,6 +2,7 @@ import { ChevronLeft } from 'lucide-react';
 import { useNotes } from '@/hooks/useNotes';
 import { Note } from '@shared/schema';
 import { HtmlContent } from '@/components/ui/html-content';
+import { Badge } from '@/components/ui/badge';
 
 interface FilteredNotesPanelProps {
   onSelectNote: (note: Note) => void;
@@ -20,7 +21,7 @@ export default function FilteredNotesPanel({
   filterName,
   onBack 
 }: FilteredNotesPanelProps) {
-  const { allNotes } = useNotes();
+  const { allNotes, getTagsForNote } = useNotes();
 
   // Filter notes based on the selected project or tag using tagNames field
   const filteredNotes = allNotes
@@ -78,9 +79,9 @@ export default function FilteredNotesPanel({
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         {filteredNotes.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <p className="text-lg mb-2">No thoughts found</p>
-            <p className="text-sm">
+          <div className="p-8 text-center">
+            <p className="text-slate-500 mb-4">No thoughts found</p>
+            <p className="text-sm text-slate-400">
               No thoughts are tagged with "{filterName}" yet.
             </p>
           </div>
@@ -89,24 +90,31 @@ export default function FilteredNotesPanel({
             <button
               key={note.id}
               onClick={() => onSelectNote(note)}
-              className="group w-full px-4 lg:px-6 text-left border-b border-slate-100 transition-colors duration-150 hover:bg-slate-50"
+              className="group w-full h-20 px-4 lg:px-6 text-left border-b border-slate-100 transition-colors duration-150 hover:bg-slate-50"
             >
-              <div className="py-4 min-h-[80px] flex flex-col justify-center">
-                <div 
-                  className="text-slate-700 text-sm leading-relaxed break-words line-clamp-3"
-                  style={{ 
-                    height: '65px',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 3,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden'
-                  }}
-                >
-                  <HtmlContent content={note.content} />
+              <div className="flex items-center justify-between h-full min-w-0">
+                <div className="flex-1 text-sm text-slate-600 mr-4 min-w-0 flex items-center">
+                  <div className="w-full line-clamp-3 break-words leading-relaxed">
+                    <HtmlContent 
+                      content={note.content.trim()}
+                      className="[&>*]:text-sm [&>*]:text-slate-600 [&>*]:break-words [&>*]:leading-relaxed [&>*]:m-0"
+                    />
+                  </div>
                 </div>
-                <div className="mt-2 text-xs text-slate-400">
+                <span className="text-xs text-slate-400 whitespace-nowrap flex-shrink-0">
                   {formatTimeAgo(note.updatedAt || note.createdAt)}
-                </div>
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {getTagsForNote(note).map((tag) => (
+                  <Badge
+                    key={tag.id}
+                    variant="secondary"
+                    className="text-xs"
+                  >
+                    {tag.name}
+                  </Badge>
+                ))}
               </div>
             </button>
           ))
