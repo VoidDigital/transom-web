@@ -67,6 +67,7 @@ replit.nix
 # Temporary files
 .tmp/
 temp/
+attached_assets/
 
 # Firebase
 .firebase/
