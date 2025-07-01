@@ -7,10 +7,13 @@ A responsive web interface for the Transom note-taking app, built with React and
 - **Dual Authentication**: Email/password and Google sign-in
 - **Real-time Sync**: Seamless data synchronization with iOS app
 - **Responsive Design**: Optimized for both desktop and mobile browsers
-- **Rich Text Editor**: Full-featured note editing with auto-save
-- **Project Management**: Hierarchical organization of notes within projects
-- **Tag System**: Categorize and filter notes with tags
-- **Cross-platform**: Share data between web and iOS applications
+- **Smart Text Editor**: Auto-focus on new thoughts with instant editing capabilities
+- **Interactive Timestamps**: Clickable timestamps cycling between "Created" and "Last edited" with real-time updates
+- **Project Management**: Hierarchical organization of thoughts within projects
+- **Tag System**: Categorize and filter thoughts with tags
+- **Archive System**: Archive and restore thoughts with dedicated archive view
+- **Cross-platform Compatibility**: Perfect synchronization with iOS app data and formatting
+- **Real-time Navigation**: Seamless switching between sections from any view depth
 
 ## Tech Stack
 
@@ -25,7 +28,7 @@ A responsive web interface for the Transom note-taking app, built with React and
 - Node.js with Express
 - TypeScript throughout
 - Firebase Authentication
-- Firestore for real-time database
+- Firebase Realtime Database for live synchronization
 
 ## Getting Started
 
@@ -56,9 +59,18 @@ VITE_FIREBASE_APP_ID=your_app_id_here
 
 4. Configure Firebase:
    - Enable Authentication with Email/Password and Google providers
-   - Set up Firestore database
+   - Set up Firebase Realtime Database with the following security rules:
+   ```json
+   {
+     "rules": {
+       "$email": {
+         ".read": "$email === auth.email.replace('.', '▦')",
+         ".write": "$email === auth.email.replace('.', '▦')"
+       }
+     }
+   }
+   ```
    - Add your hosting domain to Firebase authorized domains
-   - Create required Firestore indexes (see Firebase Console for index creation links)
 
 5. Start the development server:
 ```bash
@@ -68,20 +80,6 @@ npm run dev
 The app will be available at `http://localhost:5000`
 
 ## Firebase Setup
-
-### Required Firestore Indexes
-The app requires these composite indexes in Firestore:
-
-1. **Projects Collection**:
-   - Fields: `userId` (Ascending), `updatedAt` (Descending), `__name__` (Descending)
-
-2. **Notes Collection**:
-   - Fields: `userId` (Ascending), `updatedAt` (Descending), `__name__` (Descending)
-
-3. **Tags Collection**:
-   - Fields: `userId` (Ascending), `name` (Ascending), `__name__` (Ascending)
-
-Firebase will provide direct links to create these indexes when you first run the app.
 
 ### Authentication Setup
 1. Enable Email/Password authentication
@@ -135,11 +133,12 @@ Set these environment variables in your hosting platform:
 
 ## Data Synchronization
 
-The web interface connects to the same Firebase project as the iOS app, ensuring:
-- Real-time synchronization of notes and projects
-- Shared user authentication
-- Consistent data across all platforms
-- Automatic conflict resolution
+The web interface connects to the same Firebase Realtime Database as the iOS app, ensuring:
+- Real-time synchronization of thoughts, projects, and tags
+- Shared user authentication across all platforms
+- Live updates as data changes in the iOS app
+- Perfect HTML format compatibility with iOS thought formatting
+- Automatic empty thought cleanup for optimal data management
 
 ## Development
 
@@ -153,6 +152,15 @@ The web interface connects to the same Firebase project as the iOS app, ensuring
 - ESLint and Prettier for code consistency
 - Component-based architecture
 - Custom hooks for reusable logic
+
+## Recent Updates
+
+### July 1, 2025
+- **Interactive Timestamp System**: Clickable timestamps that cycle between "Created" and "Last edited" with real-time minute-by-minute updates
+- **Smart Auto-Focus**: New thoughts automatically focus the text editor for immediate typing
+- **Real-time Edit Detection**: Timestamps automatically switch to "Last edited just now" when content is modified
+- **Enhanced Navigation**: Top-level navigation works from any view depth with proper state management
+- **UI Consistency**: Unified design across all thought list views (main, filtered, and archive)
 
 ## Contributing
 
