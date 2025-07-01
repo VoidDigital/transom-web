@@ -57,8 +57,15 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   }, []);
 
   // Custom formatting function that replaces "less than a minute ago" with "just now"
-  const formatTimestamp = (timestamp: number) => {
-    const date = new Date(timestamp);
+  const formatTimestamp = (timestamp: any) => {
+    let date: Date;
+    if (timestamp instanceof Date) {
+      date = timestamp;
+    } else if (typeof timestamp === 'number') {
+      date = new Date(timestamp);
+    } else {
+      date = new Date();
+    }
     const timeAgo = formatDistanceToNow(date);
     return timeAgo === 'less than a minute' ? 'just now' : timeAgo;
   };
@@ -71,6 +78,9 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   // Get the appropriate timestamp text
   const getTimestampText = () => {
     if (!note) return '';
+    
+    // Force re-render by referencing currentTime (triggers on timer updates)
+    currentTime;
     
     if (showCreatedDate) {
       return `Created ${formatTimestamp(note.createdAt)} ago`;
