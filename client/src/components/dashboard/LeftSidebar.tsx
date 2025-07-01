@@ -51,6 +51,12 @@ export default function LeftSidebar({ currentView, onViewChange, onCreateThought
       icon: Archive,
       label: 'Archive',
       count: archiveCount
+    },
+    {
+      id: 'preferences' as const,
+      icon: Settings,
+      label: 'Account Settings',
+      count: null
     }
   ];
 
@@ -111,43 +117,16 @@ export default function LeftSidebar({ currentView, onViewChange, onCreateThought
                     {item.label}
                   </p>
                 </div>
-                <span className="text-xs" style={{ color: '#c0c0c0' }}>
-                  {item.count}
-                </span>
+                {item.count !== null && (
+                  <span className="text-xs" style={{ color: '#c0c0c0' }}>
+                    {item.count}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
       </nav>
-
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-              {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
-            </span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-              {user?.name || 'User'}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-              {user?.email}
-            </p>
-          </div>
-        </div>
-        
-        <Button 
-          onClick={signOut}
-          variant="outline" 
-          size="sm" 
-          className="w-full flex items-center gap-2"
-        >
-          <LogOut className="w-4 h-4" />
-          Sign Out
-        </Button>
-      </div>
     </div>
   );
 }

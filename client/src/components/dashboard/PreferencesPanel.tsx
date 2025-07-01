@@ -174,7 +174,7 @@ export default function PreferencesPanel() {
         {/* Header */}
         <div className="flex items-center gap-3">
           <Settings className="h-6 w-6 text-gray-500" />
-          <h1 className="text-2xl font-bold">Preferences</h1>
+          <h1 className="text-2xl font-bold">Account Settings</h1>
         </div>
 
         {/* Account Section */}
